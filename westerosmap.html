@@ -1,0 +1,45 @@
+<html>
+<head>
+<!-- Load the d3 library. -->
+<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<style>
+body { font-family: "Open Sans"; }
+svg { border: solid black 1px; }
+.bar rect { fill: #ccc; }
+.axis path { fill: none; stroke: black;}
+.axis line { stroke: black; }
+.axis text { font-size: x-small; }
+.brush .extent {
+  stroke: #fff;
+  fill-opacity: .125;
+  shape-rendering: crispEdges;
+}
+</style>
+</head>
+<body>
+	<script>
+		var padding = 75;
+		var height = 700;
+		var width = 300;
+
+		// var svg = d3.select("body")
+  //  			.append("svg")
+  //   		.attr("width", width)
+  //   		.attr("height", height);
+
+		d3.xml("westeros-map.svg", "image/svg+xml", function(error, xml) {
+  			if (error) throw error;
+  			document.body.appendChild(xml.documentElement);
+  			svg.append(xml.documentElement);
+		});
+
+
+
+    </script>
+
+</body>
+</html>
+
+
+
