@@ -1,46 +1,202 @@
 <html>
 <head>
   <title>War of the Five Kings</title>
-  <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
-  <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+  <script src="http://d3js.org/d3.v3.min.js"></script>
   <style>
-  body { font-family: "Open Sans"; }
-  svg { border: solid black 1px; }
-  .bar rect { fill: #ccc; }
-  .axis path { fill: none; stroke: black;}
-  .axis line { stroke: black; }
-  .axis text { font-size: x-small; }
-  .brush .extent {
-    stroke: #fff;
-    fill-opacity: .125;
-    shape-rendering: crispEdges;
+  svg {
+    border: solid black 1px;
+  }
+  .army {
+    opacity: 0.7;
+    fill: #f00;
+    stroke: #000;
+    stroke-width: 5px;
   }
   </style>
 </head>
 <body>
 	<script>
-		var padding = 75,
-		    height  = 770,
-		    width   = 700;
+    var STEP_DURATION = 4000, // Duration of a single time step
+        LAST_STEP;
 
-		var svg = d3.select("body")
-   			.append("svg")
-    		.attr("width", width)
-    		.attr("height", height);
+		var height  = 770,
+		    width   = 700,
+        left_padding;
+
+    var current_step = 0;
+
+    var army_scale = d3.scale.sqrt(),
+        x_scale    = d3.scale.linear(),
+        y_scale    = d3.scale.linear();
+
+    var battle_data, route_data, location_mapper = {};
+
+		var svg = d3.select('body')
+   			.append('svg')
+    		.attr('width', width)
+    		.attr('height', height);
 
     var g = svg.append('g');
     var zoom_behavior = d3.behavior.zoom()
       .scaleExtent([1, 4])
-      .on("zoom", zoom);
+      .on('zoom', zoom);
 
-		d3.xml("westeros-map.svg", "image/svg+xml", function (error, xml) {
-  			if (error) throw error;
-        var importedNode = document.importNode(xml.documentElement,true);
+		d3.xml('westeros-map.svg', 'image/svg+xml', function (err, xml) {
+			if (err) throw err;
+      var importedNode = document.importNode(xml.documentElement, true);
 
-        g.call(zoom_behavior);
+      g.call(zoom_behavior);
 
-        g.node().appendChild(importedNode);
+      g.node().appendChild(importedNode);
+
+      // Setup x,y scales
+      var bbox = g.node().getBBox();
+      left_padding = bbox.x;
+
+      x_scale
+        .domain([0, 422])
+        .range([0, bbox.width]);
+
+      y_scale
+        .domain([0, 1086])
+        .range([0, bbox.height]);
+
+      d3.csv('battles.csv', function (err, battles) {
+        if (err) throw err;
+
+        // Map appropriate data to numbers
+        battle_data = battles.map(function (b) {
+          b.battle_number = Number(b.battle_number);
+          b.attacker_size = Number(b.attacker_size);
+          b.defender_size = Number(b.defender_size);
+          b.y_coord       = Number(b.y_coord);
+          b.x_coord       = Number(b.x_coord);
+          b.episode       = Number(b.episode);
+          return b;
+        });
+
+        battle_data.forEach(function (d) {
+          if (d && d.location) {
+            location_mapper[d.location] = {
+              x: d.x_coord,
+              y: d.y_coord
+            }
+          }
+        });
+        location_mapper['Casterly Rock'] = {
+          x: 50,
+          y: 600
+        }
+        location_mapper['Mummer\'s Ford'] = {
+          x: 120,
+          y: 580
+        }
+        location_mapper['Pinkmaiden'] = {
+          x: 120,
+          y: 650
+        }
+
+        d3.csv('route.csv', function (err, routes) {
+          if (err) throw err;
+
+          // Map appropriate data to numbers
+          route_data = routes.map(function (t) {
+            t.start_time        = Number(t.start_time);
+            t.end_time          = Number(t.end_time);
+            t.battle_id         = Number(t.battle_id);
+            t.army_size_before  = Number(t.army_size_before);
+            t.army_size_after   = Number(t.army_size_after);
+            t.is_done           = t.is_done === '1' ? true : false;
+            return t;
+          });
+
+          // Save last time step
+          LAST_STEP = d3.max(route_data, function (d) { return d.end_time; });
+
+          // Set up scale
+          army_scale
+            .domain([0, d3.max(route_data, function (d) {
+              return Math.max(d.army_size_before, d.army_size_after);
+            })])
+            .range([0, 100]);
+
+          // Setup armies for first time step
+          var initial = route_data.filter(function (d) {
+            return d.start_time == 0;
+          });
+
+          initial.forEach(function (d) {
+            if (location_mapper[d.start_location]) {
+              g.append('circle')
+                .attr('transform', 'translate(181,0)')
+                .attr('class', 'army ' + d.affiliation)
+                .attr('id', single_word(d.party_leader))
+                .attr('r', army_scale(d.army_size_before))
+                .attr('cx', x_scale(location_mapper[d.start_location].x))
+                .attr('cy', y_scale(location_mapper[d.start_location].y));
+            }
+          });
+        });
+      });
     });
+
+    function next_step () {
+      d3.select('#slider-value').text(current_step);
+
+      // Setup current time step armies
+      var this_step = route_data.filter(function (d) {
+        return d.start_time == current_step;
+      });
+
+      this_step.forEach(function (m) {
+        console.log(m.start_location, m.target_location);
+        var army = g.select('#' + single_word(m.party_leader));
+        if (army.empty()) {
+          // Must create army
+          g.append('circle')
+            .attr('transform', 'translate(181,0)')
+            .attr('class', 'army ' + m.affiliation)
+            .attr('id', single_word(m.party_leader))
+            .attr('r', army_scale(m.army_size_before))
+            .attr('cx', x_scale(location_mapper[m.start_location].x))
+            .attr('cy', y_scale(location_mapper[m.start_location].y));
+
+        } else {
+          // Ensure they've reached starting location
+          army.attr('transform', 'translate(180,0)')
+            .attr('r', army_scale(m.army_size_before))
+            .attr('cx', x_scale(location_mapper[m.start_location].x))
+            .attr('cy', y_scale(location_mapper[m.start_location].y))
+        }
+
+        // Animate to ending location
+        army
+          .transition()
+          .attr('r', army_scale(m.army_size_after))
+          .attr('cx', x_scale(location_mapper[m.target_location].x))
+          .attr('cy', y_scale(location_mapper[m.target_location].y))
+          .duration(STEP_DURATION * (m.end_time - m.start_time));
+
+        if (m.is_done) {
+          setTimeout(function (elm) {
+            elm.transition()
+              .attr('r', 0);
+          },
+          STEP_DURATION * (m.end_time - m.start_time),
+          g.select('#' + single_word(m.party_leader)));
+        }
+      });
+
+      // Schedule next step if not last
+      if (current_step < LAST_STEP) setTimeout(next_step, STEP_DURATION);
+      current_step++;
+    }
+
+    // 422.2 width
+    // 1086.6 height
+    // we have to scale the coordinates in the csv to the ones on the map. nancy coordinates are in terms of ^ that size we have to scale that to our width and height of the svg element (at least i think thats how the workflow will work)
+
+    /**************************************************************************/
 
     function zoom () {
       var trans = d3.event.translate,
@@ -55,16 +211,28 @@
 
       zoom_behavior.translate(trans);
 
-      g.attr("transform", "translate(" + trans + ")scale(" + scale + ")");
+      g.attr('transform', 'translate(' + trans + ')scale(' + scale + ')');
     }
 
-    // 422.2 width
-    // 1086.6 height
-    // we have to scale the coordinates in the csv to the ones on the map. nancy coordinates are in terms of ^ that size we have to scale that to our width and height of the svg element (at least i think thats how the workflow will work)
-
+    function single_word (str) { return str.replace(' ', ''); }
+    </script>
+    <div id="player">
+      <button>Start</button>
+      <!-- <input type="range" min="0" max="20" step="1" /> -->
+      <span id="slider-value"></span>
+    </div>
+    <script>
+    d3.select('#player button').on('click', function () {
+      next_step();
+    });
+    d3.select('#player input').on('change', function () {
+      d3.select('#slider-value').text(this.value);
+      // current_step = this.value;
+      // do_step();
+    });
+    d3.select('#player input').on('input', function () {
+      d3.select('#slider-value').text(this.value);
+    });
     </script>
 </body>
 </html>
-
-
-
