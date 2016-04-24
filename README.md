@@ -3,8 +3,10 @@ Project 2 for CS 3300: Game of Thrones
 
 
 Ajay
+
 1. Create vertical timeline based on our 1-20 frames but scaled to the time between the start of the war of the five kings
 298 to 301.
+
 2. map the events chronologically next to the timeline as clickable events that then switch where the current position
 in the timeline is to when that event occurs. Pops up modal of information of that event and positions the armies
 at that time slice
