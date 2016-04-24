@@ -15,3 +15,5 @@ at that time slice
 
 4. potentially as a stretch goal figure out how to show the influence of each party over time as well. seperate
 from the army data. this is why regards to allegiances.
+
+5. have banner img for the 5 armies on the left side of the map and clicking on them will filter out/ put back in the armies on the map. aka make them transparent or visible again.
