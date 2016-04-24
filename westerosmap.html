@@ -8,15 +8,14 @@
   }
   .army {
     opacity: 0.7;
-    fill: #f00;
     stroke: #000;
-    stroke-width: 5px;
+    stroke-width: 2px;
   }
   </style>
 </head>
 <body>
 	<script>
-    var STEP_DURATION = 4000, // Duration of a single time step
+    var STEP_DURATION = 1500, // Duration of a single time step
         LAST_STEP;
 
 		var height  = 770,
@@ -29,7 +28,7 @@
         x_scale    = d3.scale.linear(),
         y_scale    = d3.scale.linear();
 
-    var battle_data, route_data, location_mapper = {};
+    var battle_data, route_data, location_mapper = {}, affiliation_mapper = {};
 
 		var svg = d3.select('body')
    			.append('svg')
@@ -72,11 +71,13 @@
           b.y_coord       = Number(b.y_coord);
           b.x_coord       = Number(b.x_coord);
           b.episode       = Number(b.episode);
+          b.location      = b.location.trim();
           return b;
         });
 
         battle_data.forEach(function (d) {
-          if (d && d.location) {
+          // Fill location mapper
+          if (d.location) {
             location_mapper[d.location] = {
               x: d.x_coord,
               y: d.y_coord
@@ -94,8 +95,17 @@
             t.battle_id         = Number(t.battle_id);
             t.army_size_before  = Number(t.army_size_before);
             t.army_size_after   = Number(t.army_size_after);
+            t.start_location    = t.start_location.trim();
+            t.target_location   = t.target_location.trim();
             t.is_done           = t.is_done === '1' ? true : false;
             return t;
+          });
+
+          route_data.forEach(function (d) {
+            // Fill affiliation mapper
+            if (d.affiliation) {
+              affiliation_mapper[d.affiliation] = random_color();
+            }
           });
 
           // Save last time step
@@ -106,7 +116,7 @@
             .domain([0, d3.max(route_data, function (d) {
               return Math.max(d.army_size_before, d.army_size_after);
             })])
-            .range([0, 100]);
+            .range([5, 30]);
 
           // Setup armies for first time step
           var initial = route_data.filter(function (d) {
@@ -116,6 +126,7 @@
           initial.forEach(function (d) {
             if (location_mapper[d.start_location]) {
               g.append('circle')
+                .style('fill', affiliation_mapper[d.affiliation])
                 .attr('transform', 'translate(181,0)')
                 .attr('class', 'army ' + d.affiliation)
                 .attr('id', single_word(d.party_leader))
@@ -137,11 +148,11 @@
       });
 
       this_step.forEach(function (m) {
-        console.log(m.start_location, m.target_location);
         var army = g.select('#' + single_word(m.party_leader));
         if (army.empty()) {
           // Must create army
           g.append('circle')
+            .style('fill', affiliation_mapper[m.affiliation])
             .attr('transform', 'translate(181,0)')
             .attr('class', 'army ' + m.affiliation)
             .attr('id', single_word(m.party_leader))
@@ -158,6 +169,7 @@
         }
 
         // Animate to ending location
+        console.log(m.start_location, m.target_location);
         army
           .transition()
           .attr('r', army_scale(m.army_size_after))
@@ -221,6 +233,18 @@
     d3.select('#player input').on('input', function () {
       d3.select('#slider-value').text(this.value);
     });
+
+    /**
+     * Generates a random color from a given seed
+     */
+    function random_color() {
+        var letters = '0123456789ABCDEF'.split('');
+        var color = '#';
+        for (var i = 0; i < 6; i++ ) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+    }
     </script>
 </body>
 </html>
