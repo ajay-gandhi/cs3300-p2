@@ -11,70 +11,80 @@
     stroke: #000;
     stroke-width: 2px;
   }
-  .sidebyside {
+  .side {
     float: left;
     width: 710px;
     height: 800px;
     border: none;
     margin: 5px;
-    padding-left: 10px;
+    
     font-family: "Helvetica";
+  }
+  .middle{
+    float:left;
+    width:175px;
+    height:800px;
+    border:none;
+    margin: 5px;
+  }
+  .map{
+    float:left;
+    width: 400px;
+    height: 800px;
+    border: none;
+    margin: 5px;
   }
   </style>
 </head>
 <body>
-	<div class="sidebyside" id="map"></div>
-  <div class="sidebyside" id="side"></div>
-	<script>
+  <div class="map" id="map"></div>
+   <div class="middle" id="timeline">
+        <div id="player">
+          <button id="play">Play</button>
+          <button id="pause">Pause</button>
+          <input type="range" id="timeline" min="0" max="20" step="1" value="0" />
+          <span id="slider-value"></span>
+        </div>
+   </div>
+  <div class="side" id="side"></div>
+  
+  <script>
     var STEP_DURATION = 1500, // Duration of a single time step
         LAST_STEP;            // Max # of frames
-
     var IS_PLAYING = false,   // true if the animation is running
         next_step;            // holds the timeout
-
-		var height  = 770,
-		    width   = 700;
-
+   
+    var height  = 770,
+        width   = 400;
+   
     var current_step = 0;
-
     var army_scale = d3.scale.sqrt(),
         x_scale    = d3.scale.linear(),
         y_scale    = d3.scale.linear();
-
     var battle_data, route_data, location_mapper = {}, affiliation_mapper = {};
-
-		var svg = d3.select('#map')
-   			.append('svg')
-    		.attr('width', width)
-    		.attr('height', height);
-
+    var svg = d3.select('#map')
+        .append('svg')
+        .attr('width', width)
+        .attr('height', height);
     var g = svg.append('g');
     var zoom_behavior = d3.behavior.zoom()
       .scaleExtent([1, 4])
       .on('zoom', zoom);
-
-		d3.xml('westeros_test.svg', 'image/svg+xml', function (err, xml) {
-			if (err) throw err;
+    d3.xml('westeros_test.svg', 'image/svg+xml', function (err, xml) {
+      if (err) throw err;
       var importedNode = document.importNode(xml.documentElement, true);
-
       g.call(zoom_behavior);
-
       g.node().appendChild(importedNode);
-
       // Setup x,y scales
       var bbox = g.node().getBBox();
-
       x_scale
         .domain([0, 720])
         .range([0, bbox.width]);
-
       y_scale
         .domain([0, 1390])
         .range([0, bbox.height]);
-
       d3.csv('battles.csv', function (err, battles) {
         if (err) throw err;
-
         // Map appropriate data to numbers
         battle_data = battles.map(function (b) {
           b.battle_number = Number(b.battle_number);
@@ -86,7 +96,6 @@
           b.location      = b.location.trim();
           return b;
         });
-
         battle_data.forEach(function (d) {
           // Fill location mapper
           if (d.location) {
@@ -96,10 +105,8 @@
             }
           }
         });
-
         d3.csv('route.csv', function (err, routes) {
           if (err) throw err;
-
           // Map appropriate data to numbers
           route_data = routes.map(function (t) {
             t.start_time        = Number(t.start_time);
@@ -112,29 +119,24 @@
             t.is_done           = t.is_done === '1' ? true : false;
             return t;
           });
-
           route_data.forEach(function (d) {
             // Fill affiliation mapper
             if (d.affiliation) {
               affiliation_mapper[d.affiliation] = random_color();
             }
           });
-
           // Save last time step
           LAST_STEP = d3.max(route_data, function (d) { return d.end_time; });
-
           // Set up scale
           army_scale
             .domain([0, d3.max(route_data, function (d) {
               return Math.max(d.army_size_before, d.army_size_after);
             })])
             .range([5, 30]);
-
           // Setup armies for first time step
           var initial = route_data.filter(function (d) {
             return d.start_time == 0;
           });
-
           initial.forEach(function (d) {
             if (location_mapper[d.start_location]) {
               g.append('circle')
@@ -150,19 +152,16 @@
         });
       });
     });
-
     /**
      * Goes to current_step in the animation and animates to the following step.
      */
     function do_step () {
       d3.select('#slider-value').text(current_step);
       d3.select('#player #timeline')[0][0].value = current_step;
-
       // Setup current time step armies
       var this_step = route_data.filter(function (d) {
         return d.start_time == current_step;
       });
-
       this_step.forEach(function (m) {
         var army = g.select('#' + single_word(m.party_leader));
         if (army.empty()) {
@@ -175,7 +174,6 @@
             .attr('r', army_scale(m.army_size_before))
             .attr('cx', x_scale(location_mapper[m.start_location].x))
             .attr('cy', y_scale(location_mapper[m.start_location].y));
-
         } else {
           // Ensure they've reached starting location
           army
@@ -183,7 +181,6 @@
             .attr('cx', x_scale(location_mapper[m.start_location].x))
             .attr('cy', y_scale(location_mapper[m.start_location].y))
         }
-
         // Animate to ending location
         army
           .transition()
@@ -192,7 +189,6 @@
           .attr('cx', x_scale(location_mapper[m.target_location].x))
           .attr('cy', y_scale(location_mapper[m.target_location].y))
           .duration(STEP_DURATION * (m.end_time - m.start_time));
-
         if (m.is_done) {
           setTimeout(function (elm) {
             elm.transition()
@@ -202,20 +198,16 @@
           g.select('#' + single_word(m.party_leader)));
         }
       });
-
       // Schedule next step if not last and if playing
       if (current_step < LAST_STEP && IS_PLAYING)
         next_step = setTimeout(do_step, STEP_DURATION);
-
       current_step++;
     }
-
     /**
      * Goes to current_step in the animation
      */
     function goto_step () {
       var current_armies = [];
-
       // Grab relevant armies
       var starts_now = route_data.filter(function (d) {
         return d.start_time == current_step;
@@ -226,11 +218,9 @@
       var ending_now = route_data.filter(function (d) {
         return d.end_time == current_step;
       });
-
       // Armies that start now should just appear and stay at their start location
       starts_now.forEach(function (m) {
         current_armies.push(single_word(m.party_leader));
-
         var army = g.select('#' + single_word(m.party_leader));
         if (army.empty()) {
           // Must create army
@@ -242,7 +232,6 @@
             .attr('r', army_scale(m.army_size_before))
             .attr('cx', x_scale(location_mapper[m.start_location].x))
             .attr('cy', y_scale(location_mapper[m.start_location].y));
-
         } else {
           // Ensure they've reached starting location
           army
@@ -251,24 +240,18 @@
             .attr('cy', y_scale(location_mapper[m.start_location].y))
         }
       });
-
       // Armies that are moving now should go to their interpolated location
       moving_now.forEach(function (m) {
         current_armies.push(single_word(m.party_leader));
-
         var army = g.select('#' + single_word(m.party_leader));
-
         // Calculate interpolated location
         var duration = m.end_time - m.start_time,
             frac = (current_step - m.start_time) / duration;
-
         var s = location_mapper[m.start_location],
             t = location_mapper[m.target_location];
-
         var inter_x    = (s.x - t.x) * frac + s.x,
             inter_y    = (s.y - t.y) * frac + s.y,
             inter_size = (m.army_size_after - m.army_size_before) * frac + m.army_size_before;
-
         if (army.empty()) {
           g.append('circle')
             .style('fill', affiliation_mapper[m.affiliation])
@@ -286,27 +269,22 @@
             .attr('cy', y_scale(inter_y));
         }
       });
-
       // Armies that end now should go to their target location and die if necessary
       ending_now.forEach(function (m) {
         current_armies.push(single_word(m.party_leader));
-
         var army = g.select('#' + single_word(m.party_leader));
-
         // Ensure they've reached ending location
         if (!army.empty()) {
           army
             .attr('r', army_scale(m.army_size_after))
             .attr('cx', x_scale(location_mapper[m.target_location].x))
             .attr('cy', y_scale(location_mapper[m.target_location].y));
-
           if (m.is_done) {
             army.transition()
               .attr('r', 0);
           }
         }
       });
-
       // Remove unneeded armies
       d3.selectAll('.army')
         .filter(function () {
@@ -314,35 +292,28 @@
         })
         .remove();
     }
-
     /**************************************************************************/
-
     /**
      * Zoom behavior for map
      */
     function zoom () {
       var trans = d3.event.translate,
           scale = d3.event.scale;
-
       // Pan limiting
       if (trans[1] > 1) {
         trans[1] = 0;
       } else if (trans[1] < -height * scale + height - 1) {
         trans[1] = -height * scale + height;
       }
-
       zoom_behavior.translate(trans);
-
       g.attr('transform', 'translate(' + trans + ')scale(' + scale + ')');
     }
-
     /**
      * Removes all whitespace from the given string
      */
     function single_word (str) {
       return str.replace(' ', '').trim();
     }
-
     /**
      * Generates a random color from a given seed
      */
@@ -355,12 +326,7 @@
       return color;
     }
     </script>
-    <div id="player">
-      <button id="play">Play</button>
-      <button id="pause">Pause</button>
-      <input type="range" id="timeline" min="0" max="20" step="1" value="0" />
-      <span id="slider-value"></span>
-    </div>
+    
     <script>
     d3.select('#player #play').on('click', function () {
       IS_PLAYING = true;
@@ -379,10 +345,16 @@
       goto_step();
     });
     
+    var timeline= d3.select("#timeline")
+                    .append("svg")
+                    .attr("width",175)
+                    .attr("height",725)
+                    .style("border", "none");
+
     var side = d3.select("#side")
                 .append("svg")
-                .attr("width", width)
-                .attr("height", height);
+                .attr("width", 700)
+                .attr("height", 770);
 
     function addText (text, x, y, size) {
       side.append("text")
@@ -393,7 +365,6 @@
         .style("font-size", size)
         .style("fill", "black");
     }
-
     addText("Battle Name Goes Here", 350, 30, 36)
     addText("Location of Battle, Year", 350, 60, 20)
     addText("Commander Name",350, 450, 20)
@@ -405,7 +376,6 @@
     addText("Outcome", 350, 550, 20)
     addText("Defender Outcome", 150, 550, 20)
     addText("Attacker Outcome", 550, 550, 20)
-
     function addImage(x, y, height, width, url){
       side.append('image')
         .attr('xlink:href',url)
@@ -420,7 +390,6 @@
     addImage(300, 150, 100, 100, "http://www.clker.com/cliparts/7/l/N/9/Q/C/black-crossed-swords-hi.png")
     addImage(100, 320, 100, 100, "http://acimg.auctivacommerce.com/imgdata/0/2/0/4/2/7/webimg/7669962.jpg")
     addImage(500, 320, 100, 100, "http://acimg.auctivacommerce.com/imgdata/0/2/0/4/2/7/webimg/7669962.jpg")
-
     side.append('image')
       .attr('xlink:href',"http://www.imarvintpa.com/Mapping/Overlays/Blood/Blood%20splatter%2019-sc.png")
       .attr('class', 'pico')
@@ -430,8 +399,6 @@
       .attr('y', 150)
       .attr("opacity", 0.3);
 
-
-
     var attacker= side.append('image')
                     .attr('xlink:href','https://pbs.twimg.com/profile_images/2894841549/aa71ed53c4c478e11dab49e767c3072a.jpeg')
                     .attr('class', 'pico')
@@ -439,7 +406,6 @@
                     .attr('width', '200')
                     .attr('x', '50')
                     .attr('y', '100');
-
     
     var defender= side.append('image')
                     .attr('xlink:href','https://pbs.twimg.com/profile_images/2894841549/aa71ed53c4c478e11dab49e767c3072a.jpeg')
@@ -449,6 +415,1036 @@
                     .attr('x', '450')
                     .attr('y', '100');
     
+    BattleNames=["Battle of the Golden Tooth",
+                "Battle at the Mummer's Ford",
+                "Battle of Riverrun",
+                "Battle of the Green Fork",
+                "Battle of the Whispering Wood",
+                "Battle of the Camps",
+                "Sack of Darry",
+                "Battle of Moat Cailin",
+                "Battle of Deepwood Motte",
+                "Battle of the Stony Shore",
+                "Battle of Torrhen's Square",
+                "Battle of Winterfell",
+                "Sack of Torrhen's Square",
+                "Sack of Winterfell",
+                "Battle of Oxcross",
+                "Siege of Storm's End",
+                "Battle of the Fords",
+                "Sack of Harrenhal",
+                "Battle of the Crag",
+                "Battle of the Blackwater",
+                "Siege of Darry",
+                "Battle of Duskendale",
+                "Battle of the Burning Septry",
+                "Battle of the Ruby Ford",
+                "Retaking of Harrenhal",
+                "The Red Wedding",
+                "Siege of Seagard",
+                "Battle of Castle Black",
+                "Fall of Moat Cailin",
+                "Sack of Saltpans",
+                "Retaking of Deepwood Motte",
+                "Battle of the Shield Islands",
+                "Invasion of Ryamsport, Vinetown, and Starfish Harbor",
+                "Second Seige of Storm's End",
+                "Siege of Dragonstone",
+                "Siege of Riverrun",
+                "Siege of Raventree",
+                "Siege of Winterfell"];
+
+            for (var i=0; i<BattleNames.length; i++){
+              timeline.append("text")
+                      .text(BattleNames[i])
+                      .attr("x",12)
+                      .attr("y",i*18)
+                      .style("fill", "black")
+                      .style("font-size", 12);
+              
+              timeline.append("rect")
+                      .attr("x",8)
+                      .attr("y",6+i*18)
+                      .attr("height", 15)
+                      .attr("width", 165)
+                      .style("stroke", "black")
+                      .style("fill", "none");
+
+            // timeline.append('image')
+            //           .attr('xlink:href','http://www.clker.com/cliparts/2/b/2/8/13663778451350263915sword.svg')
+            //           .attr('class', 'pico')
+            //           .attr('height', 30)
+            //           .attr('width', 20)
+            //           .attr('x', 0)
+            //           .attr('y', 3+i*18);
+
+        }
+
+        
+        d3.select("#timeline").selectAll("rect").on("click",function(d,i){
+          
+            d3.select(this).style("fill","blue");
+        });
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   </script>
 </body>
 </html>
