@@ -4,7 +4,7 @@
   <script src="http://d3js.org/d3.v3.min.js"></script>
   <style>
   svg {
-    border: solid black 1px;
+    border: none;
   }
   .army {
     opacity: 0.7;
@@ -18,7 +18,7 @@
     border: none;
     margin: 5px;
     
-    font-family: "Helvetica";
+    font-family: "High Tower Text";
   }
   .middle{
     float:left;
@@ -26,6 +26,7 @@
     height:800px;
     border:none;
     margin: 5px;
+    font-family: "High Tower Text";
   }
   .map{
     float:left;
@@ -351,67 +352,8 @@
                 .append("svg")
                 .attr("width", 700)
                 .attr("height", 770);
-
-    function addText (text, x, y, size) {
-      side.append("text")
-        .text(text)
-        .attr("x", x)
-        .attr("y", y)
-        .style("text-anchor","middle")
-        .style("font-size", size)
-        .style("fill", "black");
-    }
-    addText("Battle Name Goes Here", 350, 30, 36)
-    addText("Location of Battle, Year", 350, 60, 20)
-    addText("Commander Name",350, 450, 20)
-    addText("Defender Name", 150, 450, 20)
-    addText("Attacker Name", 550, 450, 20)
-    addText("Army Size", 350, 500, 20)
-    addText("Defender Size", 150, 500, 20)
-    addText("Attacker Size", 550, 500, 20)
-    addText("Outcome", 350, 550, 20)
-    addText("Defender Outcome", 150, 550, 20)
-    addText("Attacker Outcome", 550, 550, 20)
-    function addImage(x, y, height, width, url){
-      side.append('image')
-        .attr('xlink:href',url)
-        .attr('class', 'pico')
-        .attr('height', height)
-        .attr('width', width)
-        .attr('x', x)
-        .attr('y', y);
-    }
-  
-    // addImage(0, 0, 700, 700, )
-    addImage(300, 150, 100, 100, "http://www.clker.com/cliparts/7/l/N/9/Q/C/black-crossed-swords-hi.png")
-    addImage(100, 320, 100, 100, "http://acimg.auctivacommerce.com/imgdata/0/2/0/4/2/7/webimg/7669962.jpg")
-    addImage(500, 320, 100, 100, "http://acimg.auctivacommerce.com/imgdata/0/2/0/4/2/7/webimg/7669962.jpg")
-    side.append('image')
-      .attr('xlink:href',"http://www.imarvintpa.com/Mapping/Overlays/Blood/Blood%20splatter%2019-sc.png")
-      .attr('class', 'pico')
-      .attr('height', 700)
-      .attr('width', 700)
-      .attr('x', 0)
-      .attr('y', 150)
-      .attr("opacity", 0.3);
-
-    var attacker= side.append('image')
-                    .attr('xlink:href','https://pbs.twimg.com/profile_images/2894841549/aa71ed53c4c478e11dab49e767c3072a.jpeg')
-                    .attr('class', 'pico')
-                    .attr('height', '200')
-                    .attr('width', '200')
-                    .attr('x', '50')
-                    .attr('y', '100');
     
-    var defender= side.append('image')
-                    .attr('xlink:href','https://pbs.twimg.com/profile_images/2894841549/aa71ed53c4c478e11dab49e767c3072a.jpeg')
-                    .attr('class', 'pico')
-                    .attr('height', '200')
-                    .attr('width', '200')
-                    .attr('x', '450')
-                    .attr('y', '100');
-    
-        var event_info = {};
+    var event_info = {};
     var event_id_mapper = {};
 
     d3.csv('battles.csv', function (err, battles) {
@@ -426,6 +368,7 @@
             b.location      = b.location.trim();
 
             b.battle_type   = b.battle_type;
+            b.year= b.year;
             
             // attacker info
             b.attacker_1    = b.attacker_1;
@@ -443,25 +386,20 @@
 
 
         event_info.forEach(function (d) {
-        // Fill the event info mapping the id to the data
-          if (d.battle_number) {
+          if (d.battle_number){
             event_id_mapper[d.battle_number] = d;
           }
         });
 
         var list_yScale = d3.scale.linear()
-        .domain([0,Object.keys(event_id_mapper).length - 1])
-        .range([height- 15,15]);
+        .domain([0,Object.keys(event_id_mapper).length-1])
+        .range([height-60,15]);
 
         var list_events = [];
 
         // accumulate a list of events
-        Object.keys(event_id_mapper).reverse().forEach(function (id,i){
-          
-          // if it is not undefined
-          if (event_id_mapper[i]){
-            list_events.push(event_id_mapper[i]);
-          }
+        Object.keys(event_id_mapper).forEach(function (id,i){
+            list_events.push(event_id_mapper[id]);
         });
 
         var iter = 0;
@@ -470,7 +408,7 @@
         .append("rect")
         .attr("x",8)
         .attr("y", function (d){
-          var scaledY = list_yScale(iter)-32
+          var scaledY = list_yScale(list_events.length - iter - 1)-15
           iter++
           return scaledY })
         .attr("height", 18)
@@ -497,11 +435,88 @@
           //           .attr('y', 3+i*18);
         });
 
+        
+        function addText (text, x, y, size) {
+      side.append("text")
+        .text(text)
+        .attr("x", x)
+        .attr("y", y)
+        .style("text-anchor","middle")
+        .style("font-size", size)
+        .style("fill", "black");
+    }
+
+    function addImage(x, y, height, width, url){
+      side.append('image')
+        .attr('xlink:href',url)
+        .attr('class', 'pico')
+        .attr('height', height)
+        .attr('width', width)
+        .attr('x', x)
+        .attr('y', y);
+    }
+
+   
+          var currentColor= "white";
         d3.select("#timeline").selectAll("rect").on("click",function(d,i){
-          console.log(d);
-          d3.select(this).style("fill","blue");
+          //console.log(d);
+          currentColor = currentColor == "white" ? "blue" : "white";
+            d3.select(this).style("fill", currentColor);
+          
+          if (currentColor=="blue"){
+            d3.select("#side").selectAll("text").remove();
+            defender_outcome="";
+            if(d.attacker_outcome=="win"){
+                  defender_outcome= "loss";
+                }
+                else{
+                  defender_outcome="win";
+                }
+            addText(d.name, 350,30,36)
+            addText(d.location+","+d.year, 350,60,20)
+            addText("Commander Name",350, 450, 20)
+              addText(d.attack_commander, 150, 450, 16)
+              addText(d.defender_commander, 550, 450, 16)
+            addText("Army Size", 350, 500, 20)
+              addText(d.defender_size, 150, 500, 14)
+              addText(d.attacker_size, 550, 500, 14)
+            addText("Outcome", 350, 550, 20)
+              addText(defender_outcome, 150, 550, 50)
+              addText(d.attacker_outcome, 550, 550, 50)
+
+            addImage(100, 320, 100, 100, "http://acimg.auctivacommerce.com/imgdata/0/2/0/4/2/7/webimg/7669962.jpg")//attacker banner
+            addImage(500, 320, 100, 100, "http://acimg.auctivacommerce.com/imgdata/0/2/0/4/2/7/webimg/7669962.jpg")//defender banner
+            addImage(50, 100, 200, 200, "https://pbs.twimg.com/profile_images/2894841549/aa71ed53c4c478e11dab49e767c3072a.jpeg")//attacker king
+            addImage(450, 100, 200, 200, "https://pbs.twimg.com/profile_images/2894841549/aa71ed53c4c478e11dab49e767c3072a.jpeg")//defender king
+          }
+
+          if (currentColor=="white"){
+            d3.select("#side").selectAll("text").remove();
+            addText("Please Select a Battle",350,30,36)
+          }
+
+
 
         });
+
+        
+    addImage(300, 150, 100, 100, "http://www.clker.com/cliparts/7/l/N/9/Q/C/black-crossed-swords-hi.png")//crossed sword
+    side.append('image')
+      .attr('xlink:href',"http://www.imarvintpa.com/Mapping/Overlays/Blood/Blood%20splatter%2019-sc.png")
+      .attr('class', 'pico')
+      .attr('height', 700)
+      .attr('width', 700)
+      .attr('x', 0)
+      .attr('y', 120)
+      .attr("opacity", 0.3);
+   
+
+
+    
+  
+    
+    
+    
 
   });
   </script>
