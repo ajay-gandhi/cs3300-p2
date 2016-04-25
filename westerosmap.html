@@ -236,7 +236,7 @@
           // Must create army
           g.append('circle')
             .style('fill', affiliation_mapper[m.affiliation])
-            .attr('transform', 'translate(181,0)')
+            .attr('transform', 'translate(147,0)')
             .attr('class', 'army ' + m.affiliation)
             .attr('id', single_word(m.party_leader))
             .attr('r', army_scale(m.army_size_before))
@@ -272,7 +272,7 @@
         if (army.empty()) {
           g.append('circle')
             .style('fill', affiliation_mapper[m.affiliation])
-            .attr('transform', 'translate(181,0)')
+            .attr('transform', 'translate(147,0)')
             .attr('class', 'army ' + m.affiliation)
             .attr('id', single_word(m.party_leader))
             .attr('r', army_scale(m.army_size_before))
