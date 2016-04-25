@@ -65,11 +65,11 @@
       var bbox = g.node().getBBox();
 
       x_scale
-        .domain([0, 422])
+        .domain([0, 720])
         .range([0, bbox.width]);
 
       y_scale
-        .domain([0, 1086])
+        .domain([0, 1390])
         .range([0, bbox.height]);
 
       d3.csv('battles.csv', function (err, battles) {
@@ -139,7 +139,7 @@
             if (location_mapper[d.start_location]) {
               g.append('circle')
                 .style('fill', affiliation_mapper[d.affiliation])
-                .attr('transform', 'translate(181,0)')
+                .attr('transform', 'translate(147,0)')
                 .attr('class', 'army ' + d.affiliation)
                 .attr('id', single_word(d.party_leader))
                 .attr('r', army_scale(d.army_size_before))
@@ -169,7 +169,7 @@
           // Must create army
           g.append('circle')
             .style('fill', affiliation_mapper[m.affiliation])
-            .attr('transform', 'translate(181,0)')
+            .attr('transform', 'translate(147,0)')
             .attr('class', 'army ' + m.affiliation)
             .attr('id', single_word(m.party_leader))
             .attr('r', army_scale(m.army_size_before))
