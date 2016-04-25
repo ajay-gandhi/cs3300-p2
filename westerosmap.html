@@ -452,7 +452,32 @@
         var list_yScale = d3.scale.linear()
         .domain([0,Object.keys(event_id_mapper).length - 1])
         .range([height- 15,15]);
-        
+
+        var list_events = [];
+
+        // accumulate a list of events
+        Object.keys(event_id_mapper).reverse().forEach(function (id,i){
+          
+          // if it is not undefined
+          if (event_id_mapper[i]){
+            list_events.push(event_id_mapper[i]);
+          }
+        });
+
+        var iter = 0;
+        timeline.selectAll("rect")
+        .data(list_events).enter()
+        .append("rect")
+        .attr("x",8)
+        .attr("y", function (d){
+          var scaledY = list_yScale(iter)-32
+          iter++
+          return scaledY })
+        .attr("height", 18)
+        .attr("width", 165)
+        .style("stroke", "black")
+        .style("fill", "white");
+
         // loop thorugh events to display them
         Object.keys(event_id_mapper).reverse().forEach(function (id,i){
           timeline.append("text")
@@ -461,15 +486,6 @@
           .text(event_id_mapper[id].name)
           .style("font-size", 10)
           .style("fill","black");
-
-
-          timeline.append("rect")
-          .attr("x",8)
-          .attr("y",list_yScale(i)-12)
-          .attr("height", 18)
-          .attr("width", 165)
-          .style("stroke", "black")
-          .style("fill", "none");
 
           // this is the sword of steel
           // timeline.append('image')
@@ -481,11 +497,12 @@
           //           .attr('y', 3+i*18);
         });
 
-        
         d3.select("#timeline").selectAll("rect").on("click",function(d,i){
-          console.log("hi")
+          console.log(d);
           d3.select(this).style("fill","blue");
+
         });
+
   });
   </script>
 </body>
