@@ -53,7 +53,7 @@
       .scaleExtent([1, 4])
       .on('zoom', zoom);
 
-		d3.xml('westeros-map.svg', 'image/svg+xml', function (err, xml) {
+		d3.xml('westeros_test.svg', 'image/svg+xml', function (err, xml) {
 			if (err) throw err;
       var importedNode = document.importNode(xml.documentElement, true);
 
