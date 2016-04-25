@@ -718,71 +718,58 @@
         .attr('y', y);
     }
 
-    var currentColor= "transparent";
     d3.select("#timeline").selectAll("rect").on("click",function(d,i){
-        
+          
       d3.select("#timeline").selectAll("rect").style("fill", "transparent");
 
-      currentColor = currentColor == "transparent" ? "red" : "transparent";
-      d3.select(this).style("fill", currentColor).style("opacity", 0.3);
-
-        if (currentColor=="red"){
-
-          d3.select("#side").selectAll("text").remove();
-          defender_outcome="";
-          if(d.attacker_outcome=="win"){
-                defender_outcome= "loss";
-              }
-              else{
-                defender_outcome="win";
-              }
-          addText(d.name, 350,30,36)
-          addText(d.location+","+d.year, 350,60,20)
-          addText("Affiliation",350, 450, 20)
-            addText(d.attacker_1, 150, 450, 16)
-            addText(d.defender_1, 550, 450, 16)
-          addText("Commander Name",350, 500, 20)
-            addText(d.attack_commander, 150, 500, 16)
-            addText(d.defender_commander, 550, 500, 16)
-          addText("Army Size", 350, 550, 20)
-            addText(d.defender_size, 150, 550, 14)
-            addText(d.attacker_size, 550, 550, 14)
-          addText("Outcome", 350, 600, 20)
-            addText(defender_outcome, 150, 600, 50)
-            addText(d.attacker_outcome, 550, 600, 50)
-
-          addImage(100, 320, 100, 100, affiliation[d.attacker_1])//attacker banner
-          addImage(500, 320, 100, 100, affiliation[d.defender_1])//defender banner
-          addImage(50, 100, 200, 200, "https://pbs.twimg.com/profile_images/2894841549/aa71ed53c4c478e11dab49e767c3072a.jpeg")//attacker king
-          addImage(450, 100, 200, 200, "https://pbs.twimg.com/profile_images/2894841549/aa71ed53c4c478e11dab49e767c3072a.jpeg")//defender king
-        
-        }
-
-        if (currentColor=="transparent"){
-          d3.select("#side").selectAll("text").remove();
-          addText("Please Select a Battle",350,30,36)
-        }
-    });
-
-        
-    addImage(300, 150, 100, 100, "http://www.clker.com/cliparts/7/l/N/9/Q/C/black-crossed-swords-hi.png")//crossed sword
-    side.append('image')
-      .attr('xlink:href',"http://www.imarvintpa.com/Mapping/Overlays/Blood/Blood%20splatter%2019-sc.png")
-      .attr('class', 'pico')
-      .attr('height', 700)
-      .attr('width', 700)
-      .attr('x', 0)
-      .attr('y', 120)
-      .attr("opacity", 0.3);
-   
+      d3.select(this).style("fill", "red").style("opacity", 0.3);
 
 
-    
-  
-    
-    
-    
 
+      d3.select("#side").selectAll("text").remove();
+      defender_outcome="";
+      if(d.attacker_outcome=="win"){
+            defender_outcome= "loss";
+      }
+      else{
+            defender_outcome="win";
+      }
+      addText(d.name, 350,30,36)
+      addText(d.location+","+d.year, 350,60,20)
+      addText("Affiliation",350, 450, 20)
+      addText(d.attacker_1, 150, 450, 16)
+      addText(d.defender_1, 550, 450, 16)
+      addText("Commander Name",350, 500, 20)
+      addText(d.attack_commander, 150, 500, 16)
+      addText(d.defender_commander, 550, 500, 16)
+      addText("Army Size", 350, 550, 20)
+      addText(d.defender_size, 150, 550, 14)
+      addText(d.attacker_size, 550, 550, 14)
+      addText("Outcome", 350, 600, 20)
+      addText(defender_outcome, 150, 600, 50)
+      addText(d.attacker_outcome, 550, 600, 50)
+
+      addImage(100, 320, 100, 100, affiliation[d.attacker_1])//attacker banner
+      addImage(500, 320, 100, 100, affiliation[d.defender_1])//defender banner
+      addImage(50, 100, 200, 200, "https://pbs.twimg.com/profile_images/2894841549/aa71ed53c4c478e11dab49e767c3072a.jpeg")//attacker king
+      addImage(450, 100, 200, 200, "https://pbs.twimg.com/profile_images/2894841549/aa71ed53c4c478e11dab49e767c3072a.jpeg")//defender king
+
+          // if (currentColor=="transparent"){
+          //   d3.select("#side").selectAll("text").remove();
+          //   addText("Please Select a Battle",350,30,36)
+          // }
+      });
+
+          
+      addImage(300, 150, 100, 100, "http://www.clker.com/cliparts/7/l/N/9/Q/C/black-crossed-swords-hi.png")//crossed sword
+      side.append('image')
+        .attr('xlink:href',"http://www.imarvintpa.com/Mapping/Overlays/Blood/Blood%20splatter%2019-sc.png")
+        .attr('class', 'pico')
+        .attr('height', 700)
+        .attr('width', 700)
+        .attr('x', 0)
+        .attr('y', 120)
+        .attr("opacity", 0.3);
   });
   </script>
 </body>
