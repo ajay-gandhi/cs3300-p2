@@ -35,6 +35,12 @@
 		var height  = 770,
 		    width   = 700;
 
+    var PADDING_TOP = 50;
+    var PADDING_BOTTOM = 50;
+    var PADDING_LEFT = 50;
+    var PADDING_RIGHT = 50;
+
+
     var current_step = 0;
 
     var army_scale = d3.scale.sqrt(),
@@ -361,6 +367,10 @@
       <input type="range" id="timeline" min="0" max="20" step="1" value="0" />
       <span id="slider-value"></span>
     </div>
+
+    <div id="event_list">
+    </div>
+
     <script>
     d3.select('#player #play').on('click', function () {
       IS_PLAYING = true;
@@ -377,6 +387,68 @@
       IS_PLAYING = false;
       current_step = this.value;
       goto_step();
+    });
+
+    var event_svg = d3.select('#event_list')
+        .append('svg')
+        .attr('width', width)
+        .attr('height', height);
+
+    var event_info = {};
+    var event_id_mapper = {};
+
+    d3.csv('battles.csv', function (err, battles) {
+      // list out all events
+      // Map appropriate data to numbers
+      var event_info = battles.map(function (b) {
+            b.name          = b.name;
+            b.battle_number = Number(b.battle_number);
+            b.y_coord       = Number(b.y_coord);
+            b.x_coord       = Number(b.x_coord);
+            b.episode       = Number(b.episode);
+            b.location      = b.location.trim();
+
+            b.battle_type   = b.battle_type;
+            
+            // attacker info
+            b.attacker_1    = b.attacker_1;
+            b.attacker_size = Number(b.attacker_size);
+            b.attacker_outcome = b.attacker_outcome;
+            b.attack_commander = b.attacker_commander;
+
+            // defender info
+            b.defender_1       = b.defender_1;
+            b.defender_size    = Number(b.defender_size);
+            b.defender_commander = b.defender_commander;
+
+            return b;
+          });
+
+
+        event_info.forEach(function (d) {
+        // Fill the event info mapping the id to the data
+          if (d.battle_number) {
+            event_id_mapper[d.battle_number] = d;
+          }
+        });
+
+        var list_yScale = d3.scale.linear()
+        .domain([0,Object.keys(event_id_mapper).length - 1])
+        .range([height - PADDING_BOTTOM, PADDING_TOP]);
+
+        // loop thorugh events to display them
+        Object.keys(event_id_mapper).forEach(function (id,i){
+          event_svg.append("text")
+          .attr("x", PADDING_LEFT)
+          .attr("y", list_yScale(i))
+          .text(event_id_mapper[id].name)
+          .style("fill","black");
+        });
+
+        d3.select("#event_list").selectAll("text").on("click",function(d,i){
+            d3.select(this).style("fill","blue");
+        });
+        
     });
     
     var side = d3.select("#side")
