@@ -16,11 +16,13 @@
 <body>
 	<script>
     var STEP_DURATION = 1500, // Duration of a single time step
-        LAST_STEP;
+        LAST_STEP;            // Max # of frames
+
+    var IS_PLAYING = false,   // true if the animation is running
+        next_step;            // holds the timeout
 
 		var height  = 770,
-		    width   = 700,
-        left_padding;
+		    width   = 700;
 
     var current_step = 0;
 
@@ -50,7 +52,6 @@
 
       // Setup x,y scales
       var bbox = g.node().getBBox();
-      left_padding = bbox.x;
 
       x_scale
         .domain([0, 422])
@@ -139,8 +140,12 @@
       });
     });
 
-    function next_step () {
+    /**
+     * Goes to current_step in the animation and animates to the following step.
+     */
+    function do_step () {
       d3.select('#slider-value').text(current_step);
+      d3.select('#player #timeline')[0][0].value = current_step;
 
       // Setup current time step armies
       var this_step = route_data.filter(function (d) {
@@ -162,16 +167,16 @@
 
         } else {
           // Ensure they've reached starting location
-          army.attr('transform', 'translate(180,0)')
+          army
             .attr('r', army_scale(m.army_size_before))
             .attr('cx', x_scale(location_mapper[m.start_location].x))
             .attr('cy', y_scale(location_mapper[m.start_location].y))
         }
 
         // Animate to ending location
-        console.log(m.start_location, m.target_location);
         army
           .transition()
+          .ease('linear')
           .attr('r', army_scale(m.army_size_after))
           .attr('cx', x_scale(location_mapper[m.target_location].x))
           .attr('cy', y_scale(location_mapper[m.target_location].y))
@@ -187,17 +192,123 @@
         }
       });
 
-      // Schedule next step if not last
-      if (current_step < LAST_STEP) setTimeout(next_step, STEP_DURATION);
+      // Schedule next step if not last and if playing
+      if (current_step < LAST_STEP && IS_PLAYING)
+        next_step = setTimeout(do_step, STEP_DURATION);
+
       current_step++;
     }
 
-    // 422.2 width
-    // 1086.6 height
-    // we have to scale the coordinates in the csv to the ones on the map. nancy coordinates are in terms of ^ that size we have to scale that to our width and height of the svg element (at least i think thats how the workflow will work)
+    /**
+     * Goes to current_step in the animation
+     */
+    function goto_step () {
+      var current_armies = [];
+
+      // Grab relevant armies
+      var starts_now = route_data.filter(function (d) {
+        return d.start_time == current_step;
+      });
+      var moving_now = route_data.filter(function (d) {
+        return d.end_time > current_step && d.start_time < current_step;
+      });
+      var ending_now = route_data.filter(function (d) {
+        return d.end_time == current_step;
+      });
+
+      // Armies that start now should just appear and stay at their start location
+      starts_now.forEach(function (m) {
+        current_armies.push(single_word(m.party_leader));
+
+        var army = g.select('#' + single_word(m.party_leader));
+        if (army.empty()) {
+          // Must create army
+          g.append('circle')
+            .style('fill', affiliation_mapper[m.affiliation])
+            .attr('transform', 'translate(181,0)')
+            .attr('class', 'army ' + m.affiliation)
+            .attr('id', single_word(m.party_leader))
+            .attr('r', army_scale(m.army_size_before))
+            .attr('cx', x_scale(location_mapper[m.start_location].x))
+            .attr('cy', y_scale(location_mapper[m.start_location].y));
+
+        } else {
+          // Ensure they've reached starting location
+          army
+            .attr('r', army_scale(m.army_size_before))
+            .attr('cx', x_scale(location_mapper[m.start_location].x))
+            .attr('cy', y_scale(location_mapper[m.start_location].y))
+        }
+      });
+
+      // Armies that are moving now should go to their interpolated location
+      moving_now.forEach(function (m) {
+        current_armies.push(single_word(m.party_leader));
+
+        var army = g.select('#' + single_word(m.party_leader));
+
+        // Calculate interpolated location
+        var duration = m.end_time - m.start_time,
+            frac = (current_step - m.start_time) / duration;
+
+        var s = location_mapper[m.start_location],
+            t = location_mapper[m.target_location];
+
+        var inter_x    = (s.x - t.x) * frac + s.x,
+            inter_y    = (s.y - t.y) * frac + s.y,
+            inter_size = (m.army_size_after - m.army_size_before) * frac + m.army_size_before;
+
+        if (army.empty()) {
+          g.append('circle')
+            .style('fill', affiliation_mapper[m.affiliation])
+            .attr('transform', 'translate(181,0)')
+            .attr('class', 'army ' + m.affiliation)
+            .attr('id', single_word(m.party_leader))
+            .attr('r', army_scale(m.army_size_before))
+            .attr('cx', x_scale(location_mapper[m.start_location].x))
+            .attr('cy', y_scale(location_mapper[m.start_location].y));
+        } else {
+          // Set location
+          army
+            .attr('r', army_scale(inter_size))
+            .attr('cx', x_scale(inter_x))
+            .attr('cy', y_scale(inter_y));
+        }
+      });
+
+      // Armies that end now should go to their target location and die if necessary
+      ending_now.forEach(function (m) {
+        current_armies.push(single_word(m.party_leader));
+
+        var army = g.select('#' + single_word(m.party_leader));
+
+        // Ensure they've reached ending location
+        if (!army.empty()) {
+          army
+            .attr('r', army_scale(m.army_size_after))
+            .attr('cx', x_scale(location_mapper[m.target_location].x))
+            .attr('cy', y_scale(location_mapper[m.target_location].y));
+
+          if (m.is_done) {
+            army.transition()
+              .attr('r', 0);
+          }
+        }
+      });
+
+      // Remove unneeded armies
+      d3.selectAll('.army')
+        .filter(function () {
+          return current_armies.indexOf(this.id) < 0;
+        })
+        .remove();
+    }
 
     /**************************************************************************/
 
+    /**
+     * Zoom behavior for map
+     */
     function zoom () {
       var trans = d3.event.translate,
           scale = d3.event.scale;
@@ -214,37 +325,48 @@
       g.attr('transform', 'translate(' + trans + ')scale(' + scale + ')');
     }
 
-    function single_word (str) { return str.replace(' ', ''); }
-    </script>
-    <div id="player">
-      <button>Start</button>
-      <!-- <input type="range" min="0" max="20" step="1" /> -->
-      <span id="slider-value"></span>
-    </div>
-    <script>
-    d3.select('#player button').on('click', function () {
-      next_step();
-    });
-    d3.select('#player input').on('change', function () {
-      d3.select('#slider-value').text(this.value);
-      // current_step = this.value;
-      // do_step();
-    });
-    d3.select('#player input').on('input', function () {
-      d3.select('#slider-value').text(this.value);
-    });
+    /**
+     * Removes all whitespace from the given string
+     */
+    function single_word (str) {
+      return str.replace(' ', '').trim();
+    }
 
     /**
      * Generates a random color from a given seed
      */
     function random_color() {
-        var letters = '0123456789ABCDEF'.split('');
-        var color = '#';
-        for (var i = 0; i < 6; i++ ) {
-            color += letters[Math.floor(Math.random() * 16)];
-        }
-        return color;
+      var letters = '0123456789ABCDEF'.split('');
+      var color = '#';
+      for (var i = 0; i < 6; i++ ) {
+          color += letters[Math.floor(Math.random() * 16)];
+      }
+      return color;
     }
+    </script>
+    <div id="player">
+      <button id="play">Play</button>
+      <button id="pause">Pause</button>
+      <input type="range" id="timeline" min="0" max="20" step="1" value="0" />
+      <span id="slider-value"></span>
+    </div>
+    <script>
+    d3.select('#player #play').on('click', function () {
+      IS_PLAYING = true;
+      do_step();
+    });
+    d3.select('#player #pause').on('click', function () {
+      IS_PLAYING = false;
+      // Pause current transitions
+      d3.selectAll('.army').transition();
+      clearTimeout(next_step);
+    });
+    d3.select('#player #timeline').on('input', function () {
+      d3.select('#slider-value').text(this.value);
+      IS_PLAYING = false;
+      current_step = this.value;
+      goto_step();
+    });
     </script>
 </body>
 </html>
