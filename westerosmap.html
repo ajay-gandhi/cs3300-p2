@@ -3,55 +3,181 @@
   <title>War of the Five Kings</title>
   <script src="http://d3js.org/d3.v3.min.js"></script>
   <style>
-  svg {
-    border: none;
-  }
   .army {
-    opacity: 0.7;
     stroke: #000;
     stroke-width: 2px;
   }
-  .side {
+
+  .section {
     float: left;
+    height: 770px;
+    margin: 5px;
+  }
+  .side {
     width: 710px;
-    height: 800px;
-    border: none;
-    margin: 5px;
-    
     font-family: "High Tower Text";
   }
-  .middle{
-    float:left;
-    width:175px;
-    height:800px;
-    border:none;
-    margin: 5px;
+  .middle {
+    padding-left: 20px;
+    width: 175px;
     font-family: "High Tower Text";
   }
-  .map{
-    float:left;
+  .map {
     width: 400px;
-    height: 800px;
-    border: none;
-    margin: 5px;
+  }
+  #banner-container {
+    padding-top: 8px;
+    width: 100px;
+  }
+  #banner-container div.banner-label {
+    width: 95px;
+    font-family: "High Tower Text";
+    text-align: center;
+    padding-bottom: 5px;
+    cursor: pointer;
+  }
+  #banner-container img {
+    width: 95px;
+    height: 114px;
+    margin-bottom: 15px;
+    cursor: pointer;
+  }
+  img.hidden-family {
+    opacity: 0.5;
+  }
+
+  #player {
+    position: relative;
+  }
+  #player #time-select {
+    position: absolute;
+    top: 360;
+    left: -370px;
+    transform: rotate(90deg);
+    height: 20px;
+    width: 720px;
+  }
+
+  input[type=range] {
+    -webkit-appearance: none;
+  }
+  input[type=range]:focus {
+    outline: none;
+  }
+  input[type=range]::-webkit-slider-runnable-track {
+    background: #f00;
+    cursor: pointer;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    height: 29px;
+    width: 30px;
+    border-radius: 7px;
+    background-image: url("images/slider.png");
+    background-size: 30px 29px;
+    background-repeat: no-repeat;
+    cursor: pointer;
+    -webkit-appearance: none;
+    margin-top: -3.6px;
+  }
+  input[type=range]:focus::-webkit-slider-runnable-track {
+    background: #ac51b5;
+  }
+  input[type=range]::-moz-range-track {
+    width: 100%;
+    height: 12.8px;
+    cursor: pointer;
+    animate: 0.2s;
+    box-shadow: 0px 0px 0px #000000, 0px 0px 0px #0d0d0d;
+    background: #ac51b5;
+    border-radius: 25px;
+    border: 0px solid #000101;
+  }
+  input[type=range]::-moz-range-thumb {
+    box-shadow: 0px 0px 0px #000000, 0px 0px 0px #0d0d0d;
+    border: 0px solid #000000;
+    height: 20px;
+    width: 39px;
+    border-radius: 7px;
+    background: #65001c;
+    cursor: pointer;
+  }
+  input[type=range]::-ms-track {
+    width: 100%;
+    height: 12.8px;
+    cursor: pointer;
+    animate: 0.2s;
+    background: transparent;
+    border-color: transparent;
+    border-width: 39px 0;
+    color: transparent;
+  }
+  input[type=range]::-ms-fill-lower {
+    background: #ac51b5;
+    border: 0px solid #000101;
+    border-radius: 50px;
+    box-shadow: 0px 0px 0px #000000, 0px 0px 0px #0d0d0d;
+  }
+  input[type=range]::-ms-fill-upper {
+    background: #ac51b5;
+    border: 0px solid #000101;
+    border-radius: 50px;
+    box-shadow: 0px 0px 0px #000000, 0px 0px 0px #0d0d0d;
+  }
+  input[type=range]::-ms-thumb {
+    box-shadow: 0px 0px 0px #000000, 0px 0px 0px #0d0d0d;
+    border: 0px solid #000000;
+    height: 20px;
+    width: 39px;
+    border-radius: 7px;
+    background: #65001c;
+    cursor: pointer;
+  }
+  input[type=range]:focus::-ms-fill-lower {
+    background: #ac51b5;
+  }
+  input[type=range]:focus::-ms-fill-upper {
+    background: #ac51b5;
   }
   </style>
 </head>
 <body>
-  <div class="map" id="map"></div>
-   <div class="middle" id="timeline">
-        <div id="player">
-          <button id="play">Play</button>
-          <button id="pause">Pause</button>
-          <input type="range" id="timeline" min="0" max="20" step="1" value="0" />
-          <span id="slider-value"></span>
-        </div>
-   </div>
-  <div class="side" id="side"></div>
-  
+  <div class="section" id="banner-container">
+    <div id="lannister-banner" class="banner">
+      <div class="banner-label">Lannister</div>
+      <img src="images/lannister-emblem.png"/>
+    </div>
+    <div id="greyjoy-banner" class="banner">
+      <div class="banner-label">Greyjoy</div>
+      <img src="images/greyjoy-emblem.png"/>
+    </div>
+    <div id="stannis-banner" class="banner">
+      <div class="banner-label">Stannis</div>
+      <img src="images/stannis-emblem.png"/>
+    </div>
+    <div id="stark-banner" class="banner">
+      <div class="banner-label">Stark</div>
+      <img src="images/stark-emblem.png"/>
+    </div>
+    <div id="renly-banner" class="banner">
+      <div class="banner-label">Renly</div>
+      <img src="images/renly-emblem.png"/>
+    </div>
+  </div>
+  <div class="section map" id="map"></div>
+  <div class="section middle" id="timeline">
+    <div id="player">
+      <button id="play">Play</button>
+      <button id="pause">Pause</button>
+      <input type="range" id="time-select" min="0" max="20" step="1" value="0" />
+      <span id="slider-value"></span>
+    </div>
+  </div>
+  <div class="section side" id="side"></div>
+
   <script>
     var STEP_DURATION = 1500, // Duration of a single time step
         LAST_STEP;            // Max # of frames
+
     var IS_PLAYING = false,   // true if the animation is running
         next_step;            // holds the timeout
 
@@ -59,33 +185,70 @@
 		    width   = 400;
 
     var current_step = 0;
+
     var army_scale = d3.scale.sqrt(),
         x_scale    = d3.scale.linear(),
         y_scale    = d3.scale.linear();
+
     var battle_data, route_data, location_mapper = {}, affiliation_mapper = {};
+
+    var army_opacity = 0.7;
+    var hidden_families = {
+      'lannister': false,
+      'greyjoy':   false,
+      'stannis':   false,
+      'stark':     false,
+      'renly':     false
+    }
+
+    d3.selectAll('div.banner').on('click', function () {
+      var family = this.id.split('-')[0];
+      hidden_families[family] = !hidden_families[family];
+
+      // Hide/show families of clicked family
+      d3.selectAll('.army')
+        .filter(function (a) {
+          return d3.select(this).classed(family);
+        })
+        .style('opacity', hidden_families[family] ? '0' : army_opacity);
+
+      // Toggle opacity of image
+      var had_class = d3.select(this).select('img').classed('hidden-family');
+      d3.select(this)
+        .select('img')
+        .classed('hidden-family', !had_class);
+    });
+
     var svg = d3.select('#map')
         .append('svg')
         .attr('width', width)
         .attr('height', height);
+
     var g = svg.append('g');
     var zoom_behavior = d3.behavior.zoom()
       .scaleExtent([1, 4])
       .on('zoom', zoom);
+
     d3.xml('westeros_test.svg', 'image/svg+xml', function (err, xml) {
       if (err) throw err;
       var importedNode = document.importNode(xml.documentElement, true);
+
       g.call(zoom_behavior);
       g.node().appendChild(importedNode);
+
       // Setup x,y scales
       var bbox = g.node().getBBox();
+
       x_scale
         .domain([0, 720])
         .range([0, bbox.width]);
       y_scale
         .domain([0, 1390])
         .range([0, bbox.height]);
+
       d3.csv('battles.csv', function (err, battles) {
         if (err) throw err;
+
         // Map appropriate data to numbers
         battle_data = battles.map(function (b) {
           b.battle_number = Number(b.battle_number);
@@ -97,6 +260,7 @@
           b.location      = b.location.trim();
           return b;
         });
+
         battle_data.forEach(function (d) {
           // Fill location mapper
           if (d.location) {
@@ -106,6 +270,7 @@
             }
           }
         });
+
         d3.csv('route.csv', function (err, routes) {
           if (err) throw err;
           // Map appropriate data to numbers
@@ -120,59 +285,75 @@
             t.is_done           = t.is_done === '1' ? true : false;
             return t;
           });
+
           route_data.forEach(function (d) {
             // Fill affiliation mapper
             if (d.affiliation) {
               affiliation_mapper[d.affiliation] = random_color();
             }
           });
+
           // Save last time step
           LAST_STEP = d3.max(route_data, function (d) { return d.end_time; });
+
           // Set up scale
           army_scale
             .domain([0, d3.max(route_data, function (d) {
               return Math.max(d.army_size_before, d.army_size_after);
             })])
             .range([5, 30]);
+
           // Setup armies for first time step
           var initial = route_data.filter(function (d) {
             return d.start_time == 0;
           });
+
           initial.forEach(function (d) {
-            if (location_mapper[d.start_location]) {
-              g.append('circle')
-                .style('fill', affiliation_mapper[d.affiliation])
-                .attr('class', 'army ' + d.affiliation)
-                .attr('id', single_word(d.party_leader))
-                .attr('r', army_scale(d.army_size_before))
-                .attr('cx', x_scale(location_mapper[d.start_location].x))
-                .attr('cy', y_scale(location_mapper[d.start_location].y));
-            }
+            g.append('circle')
+              .style('fill', affiliation_mapper[d.affiliation])
+              .style('opacity', hidden_families[d.affiliation.toLowerCase()] ? '0' : army_opacity)
+              .attr('class', 'army ' + d.affiliation.toLowerCase())
+              .attr('id', single_word(d.party_leader))
+              .attr('r', army_scale(d.army_size_before))
+              .attr('cx', x_scale(location_mapper[d.start_location].x))
+              .attr('cy', y_scale(location_mapper[d.start_location].y));
           });
         });
       });
     });
+
     /**
      * Goes to current_step in the animation and animates to the following step.
      */
     function do_step () {
       d3.select('#slider-value').text(current_step);
-      d3.select('#player #timeline')[0][0].value = current_step;
+      d3.select('#player #time-select')[0][0].value = current_step;
+
       // Setup current time step armies
-      var this_step = route_data.filter(function (d) {
+      var starts_now = route_data.filter(function (d) {
         return d.start_time == current_step;
       });
-      this_step.forEach(function (m) {
+      var moving_now = route_data.filter(function (d) {
+        return d.end_time > current_step && d.start_time < current_step;
+      });
+      var ending_now = route_data.filter(function (d) {
+        return d.end_time == current_step;
+      });
+
+      starts_now.forEach(function (m) {
         var army = g.select('#' + single_word(m.party_leader));
         if (army.empty()) {
+          console.log(m.affiliation.toLowerCase(), hidden_families[m.affiliation.toLowerCase()]);
           // Must create army
           g.append('circle')
             .style('fill', affiliation_mapper[m.affiliation])
-            .attr('class', 'army ' + m.affiliation)
+            .style('opacity', hidden_families[m.affiliation.toLowerCase()] ? '0' : army_opacity)
+            .attr('class', 'army ' + m.affiliation.toLowerCase())
             .attr('id', single_word(m.party_leader))
             .attr('r', army_scale(m.army_size_before))
             .attr('cx', x_scale(location_mapper[m.start_location].x))
             .attr('cy', y_scale(location_mapper[m.start_location].y));
+
         } else {
           // Ensure they've reached starting location
           army
@@ -180,6 +361,7 @@
             .attr('cx', x_scale(location_mapper[m.start_location].x))
             .attr('cy', y_scale(location_mapper[m.start_location].y))
         }
+
         // Animate to ending location
         army
           .transition()
@@ -188,6 +370,7 @@
           .attr('cx', x_scale(location_mapper[m.target_location].x))
           .attr('cy', y_scale(location_mapper[m.target_location].y))
           .duration(STEP_DURATION * (m.end_time - m.start_time));
+
         if (m.is_done) {
           setTimeout(function (elm) {
             elm.transition()
@@ -197,16 +380,59 @@
           g.select('#' + single_word(m.party_leader)));
         }
       });
+
+      // Armies that are moving now should go from their interpolated location
+      moving_now.forEach(function (m) {
+        var army = g.select('#' + single_word(m.party_leader));
+
+        // Calculate interpolated location
+        var duration = m.end_time - m.start_time,
+            frac = (current_step - m.start_time) / duration;
+
+        var s = location_mapper[m.start_location],
+            t = location_mapper[m.target_location];
+
+        var inter_x    = (t.x - s.x) * frac + s.x,
+            inter_y    = (t.y - s.y) * frac + s.y,
+            inter_size = (m.army_size_after - m.army_size_before) * frac + m.army_size_before;
+
+        // Set location
+        army
+          .attr('r', army_scale(inter_size))
+          .attr('cx', x_scale(inter_x))
+          .attr('cy', y_scale(inter_y));
+
+        // Animate to ending location
+        army
+          .transition()
+          .ease('linear')
+          .attr('r', army_scale(m.army_size_after))
+          .attr('cx', x_scale(location_mapper[m.target_location].x))
+          .attr('cy', y_scale(location_mapper[m.target_location].y))
+          .duration(STEP_DURATION * (m.end_time - current_step));
+      });
+
+      // Armies that end now should go to their target location and die if necessary
+      ending_now.forEach(function (m) {
+        var army = g.select('#' + single_word(m.party_leader));
+        if (m.is_done) {
+          army.transition().attr('r', 0);
+        }
+      });
+
       // Schedule next step if not last and if playing
       if (current_step < LAST_STEP && IS_PLAYING)
         next_step = setTimeout(do_step, STEP_DURATION);
+
       current_step++;
     }
+
     /**
      * Goes to current_step in the animation
      */
     function goto_step () {
       var current_armies = [];
+
       // Grab relevant armies
       var starts_now = route_data.filter(function (d) {
         return d.start_time == current_step;
@@ -217,6 +443,9 @@
       var ending_now = route_data.filter(function (d) {
         return d.end_time == current_step;
       });
+
+      console.log(starts_now, moving_now, ending_now);
+
       // Armies that start now should just appear and stay at their start location
       starts_now.forEach(function (m) {
         current_armies.push(single_word(m.party_leader));
@@ -225,11 +454,13 @@
           // Must create army
           g.append('circle')
             .style('fill', affiliation_mapper[m.affiliation])
-            .attr('class', 'army ' + m.affiliation)
+            .style('opacity', hidden_families[m.affiliation.toLowerCase()] ? '0' : army_opacity)
+            .attr('class', 'army ' + m.affiliation.toLowerCase())
             .attr('id', single_word(m.party_leader))
             .attr('r', army_scale(m.army_size_before))
             .attr('cx', x_scale(location_mapper[m.start_location].x))
             .attr('cy', y_scale(location_mapper[m.start_location].y));
+
         } else {
           // Ensure they've reached starting location
           army
@@ -238,26 +469,34 @@
             .attr('cy', y_scale(location_mapper[m.start_location].y))
         }
       });
+
       // Armies that are moving now should go to their interpolated location
       moving_now.forEach(function (m) {
         current_armies.push(single_word(m.party_leader));
+
         var army = g.select('#' + single_word(m.party_leader));
+
         // Calculate interpolated location
         var duration = m.end_time - m.start_time,
             frac = (current_step - m.start_time) / duration;
+
         var s = location_mapper[m.start_location],
             t = location_mapper[m.target_location];
-        var inter_x    = (s.x - t.x) * frac + s.x,
-            inter_y    = (s.y - t.y) * frac + s.y,
+
+        var inter_x    = (t.x - s.x) * frac + s.x,
+            inter_y    = (t.y - s.y) * frac + s.y,
             inter_size = (m.army_size_after - m.army_size_before) * frac + m.army_size_before;
+
         if (army.empty()) {
           g.append('circle')
             .style('fill', affiliation_mapper[m.affiliation])
-            .attr('class', 'army ' + m.affiliation)
+            .style('opacity', hidden_families[m.affiliation.toLowerCase()] ? '0' : army_opacity)
+            .attr('class', 'army ' + m.affiliation.toLowerCase())
             .attr('id', single_word(m.party_leader))
             .attr('r', army_scale(m.army_size_before))
             .attr('cx', x_scale(location_mapper[m.start_location].x))
             .attr('cy', y_scale(location_mapper[m.start_location].y));
+
         } else {
           // Set location
           army
@@ -266,22 +505,34 @@
             .attr('cy', y_scale(inter_y));
         }
       });
+
       // Armies that end now should go to their target location and die if necessary
       ending_now.forEach(function (m) {
         current_armies.push(single_word(m.party_leader));
         var army = g.select('#' + single_word(m.party_leader));
         // Ensure they've reached ending location
-        if (!army.empty()) {
+        if (army.empty()) {
+          g.append('circle')
+            .style('fill', affiliation_mapper[m.affiliation])
+            .style('opacity', hidden_families[m.affiliation.toLowerCase()] ? '0' : army_opacity)
+            .attr('class', 'army ' + m.affiliation.toLowerCase())
+            .attr('id', single_word(m.party_leader))
+            .attr('r', army_scale(m.army_size_after))
+            .attr('cx', x_scale(location_mapper[m.target_location].x))
+            .attr('cy', y_scale(location_mapper[m.target_location].y));
+
+        } else {
           army
             .attr('r', army_scale(m.army_size_after))
             .attr('cx', x_scale(location_mapper[m.target_location].x))
             .attr('cy', y_scale(location_mapper[m.target_location].y));
-          if (m.is_done) {
-            army.transition()
-              .attr('r', 0);
-          }
+        }
+        if (m.is_done) {
+          army.transition()
+            .attr('r', 0);
         }
       });
+
       // Remove unneeded armies
       d3.selectAll('.army')
         .filter(function () {
@@ -289,7 +540,9 @@
         })
         .remove();
     }
+
     /**************************************************************************/
+
     /**
      * Zoom behavior for map
      */
@@ -305,12 +558,14 @@
       zoom_behavior.translate(trans);
       g.attr('transform', 'translate(' + trans + ')scale(' + scale + ')');
     }
+
     /**
      * Removes all whitespace from the given string
      */
     function single_word (str) {
       return str.replace(' ', '').trim();
     }
+
     /**
      * Generates a random color from a given seed
      */
@@ -322,8 +577,6 @@
       }
       return color;
     }
-    </script>
-    <script>
 
     d3.select('#player #play').on('click', function () {
       IS_PLAYING = true;
@@ -335,7 +588,7 @@
       d3.selectAll('.army').transition();
       clearTimeout(next_step);
     });
-    d3.select('#player #timeline').on('input', function () {
+    d3.select('#player #time-select').on('input', function () {
       d3.select('#slider-value').text(this.value);
       IS_PLAYING = false;
       current_step = this.value;
