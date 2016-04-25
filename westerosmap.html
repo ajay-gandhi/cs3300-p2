@@ -11,9 +11,20 @@
     stroke: #000;
     stroke-width: 2px;
   }
+  .sidebyside {
+    float: left;
+    width: 710px;
+    height: 800px;
+    border: none;
+    margin: 5px;
+    padding-left: 10px;
+    font-family: "Helvetica";
+  }
   </style>
 </head>
 <body>
+	<div class="sidebyside" id="map"></div>
+  <div class="sidebyside" id="side"></div>
 	<script>
     var STEP_DURATION = 1500, // Duration of a single time step
         LAST_STEP;            // Max # of frames
@@ -32,7 +43,7 @@
 
     var battle_data, route_data, location_mapper = {}, affiliation_mapper = {};
 
-		var svg = d3.select('body')
+		var svg = d3.select('#map')
    			.append('svg')
     		.attr('width', width)
     		.attr('height', height);
@@ -367,6 +378,77 @@
       current_step = this.value;
       goto_step();
     });
-    </script>
+    
+    var side = d3.select("#side")
+                .append("svg")
+                .attr("width", width)
+                .attr("height", height);
+
+    function addText (text, x, y, size) {
+      side.append("text")
+        .text(text)
+        .attr("x", x)
+        .attr("y", y)
+        .style("text-anchor","middle")
+        .style("font-size", size)
+        .style("fill", "black");
+    }
+
+    addText("Battle Name Goes Here", 350, 30, 36)
+    addText("Location of Battle, Year", 350, 60, 20)
+    addText("Commander Name",350, 450, 20)
+    addText("Defender Name", 150, 450, 20)
+    addText("Attacker Name", 550, 450, 20)
+    addText("Army Size", 350, 500, 20)
+    addText("Defender Size", 150, 500, 20)
+    addText("Attacker Size", 550, 500, 20)
+    addText("Outcome", 350, 550, 20)
+    addText("Defender Outcome", 150, 550, 20)
+    addText("Attacker Outcome", 550, 550, 20)
+
+    function addImage(x, y, height, width, url){
+      side.append('image')
+        .attr('xlink:href',url)
+        .attr('class', 'pico')
+        .attr('height', height)
+        .attr('width', width)
+        .attr('x', x)
+        .attr('y', y);
+    }
+  
+    // addImage(0, 0, 700, 700, )
+    addImage(300, 150, 100, 100, "http://www.clker.com/cliparts/7/l/N/9/Q/C/black-crossed-swords-hi.png")
+    addImage(100, 320, 100, 100, "http://acimg.auctivacommerce.com/imgdata/0/2/0/4/2/7/webimg/7669962.jpg")
+    addImage(500, 320, 100, 100, "http://acimg.auctivacommerce.com/imgdata/0/2/0/4/2/7/webimg/7669962.jpg")
+
+    side.append('image')
+      .attr('xlink:href',"http://www.imarvintpa.com/Mapping/Overlays/Blood/Blood%20splatter%2019-sc.png")
+      .attr('class', 'pico')
+      .attr('height', 700)
+      .attr('width', 700)
+      .attr('x', 0)
+      .attr('y', 150)
+      .attr("opacity", 0.3);
+
+
+
+    var attacker= side.append('image')
+                    .attr('xlink:href','https://pbs.twimg.com/profile_images/2894841549/aa71ed53c4c478e11dab49e767c3072a.jpeg')
+                    .attr('class', 'pico')
+                    .attr('height', '200')
+                    .attr('width', '200')
+                    .attr('x', '50')
+                    .attr('y', '100');
+
+    
+    var defender= side.append('image')
+                    .attr('xlink:href','https://pbs.twimg.com/profile_images/2894841549/aa71ed53c4c478e11dab49e767c3072a.jpeg')
+                    .attr('class', 'pico')
+                    .attr('height', '200')
+                    .attr('width', '200')
+                    .attr('x', '450')
+                    .attr('y', '100');
+    
+  </script>
 </body>
 </html>

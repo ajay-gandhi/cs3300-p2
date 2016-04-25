@@ -15,3 +15,11 @@ at that time slice
 
 4. potentially as a stretch goal figure out how to show the influence of each party over time as well. seperate
 from the army data. this is why regards to allegiances.
+
+5. have banner img for the 5 armies on the left side of the map and clicking on them will filter out/ put back in the armies on the map. aka make them transparent or visible again.
+6. 
+https://s-media-cache-ak0.pinimg.com/736x/ce/9c/4f/ce9c4f37b386a1bc0dc21da01f1c1f9b.jpg this map looks amazing lets try to copy this somehow
+
+http://www.matthew-pauly.com/2015/06/vector-based-map-of-westeros/
+
+http://www.cartographersguild.com/showthread.php?t=6683
