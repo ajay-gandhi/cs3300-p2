@@ -628,6 +628,7 @@
             b.x_coord       = Number(b.x_coord);
             b.episode       = Number(b.episode);
             b.location      = b.location.trim();
+            b.time_data     = Number(b.time_data);
 
             b.battle_type   = b.battle_type;
             b.year= b.year;
@@ -723,6 +724,12 @@
       d3.select("#timeline").selectAll("rect").style("fill", "transparent");
 
       d3.select(this).style("fill", "red").style("opacity", 0.3);
+
+      IS_PLAYING = false;
+      current_step = d.time_data;
+      d3.select('#slider-value').text(d.time_data);
+      d3.select('#player #time-select')[0][0].value = d.time_data;
+      goto_step();
 
 
 
