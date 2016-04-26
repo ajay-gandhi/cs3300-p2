@@ -39,7 +39,7 @@
     width: 400px;
   }
   .button {
-    height: 35;
+    height: 36;
     width: auto;
     border: none;
     text-align: center;
@@ -202,6 +202,7 @@
     <div id="player">
       <img class="button" id="play" src="images/play.png"></img>
       <img class= "button" id="pause" src="images/pause.png"></img>
+      <img class= "button" id="reset" src="images/reset.png"></img>
       <img id="spear_slider" src="images/spear.png"/>
       <input type="range" id="time-select" min="0" max="20" step="1" value="0" />
       <span id="slider-value"></span>
@@ -686,6 +687,12 @@
     d3.select('#player #pause').on('click', function () {
       IS_PLAYING = false;
     });
+
+    d3.select('#player #reset').on('click',function (){
+      IS_PLAYING = false;
+      current_step = 0;
+      goto_step();
+    })
     d3.select('#player #time-select').on('input', function () {
       d3.select('#slider-value').text(this.value);
       IS_PLAYING = false;
