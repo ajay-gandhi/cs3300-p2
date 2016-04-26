@@ -618,12 +618,20 @@
     function zoom () {
       var trans = d3.event.translate,
           scale = d3.event.scale;
+
       // Pan limiting
       if (trans[1] > 1) {
         trans[1] = 0;
       } else if (trans[1] < -height * scale + height - 1) {
         trans[1] = -height * scale + height;
       }
+
+      if (trans[0] > 1) {
+        trans[0] = 0;
+      } else if (trans[0] < -width * scale + width - 1) {
+        trans[0] = -width * scale + width;
+      }
+
       zoom_behavior.translate(trans);
       g.attr('transform', 'translate(' + trans + ')scale(' + scale + ')');
     }
