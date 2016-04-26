@@ -70,21 +70,31 @@
   }
   #player #time-select {
     position: absolute;
-    top: 360;
-    left: -370px;
+    top: 390;
+    left: -375px;
     transform: rotate(90deg);
     height: 20px;
     width: 720px;
   }
 
+  #spear_slider {
+    position: absolute;
+    top:-32;
+    left: -40;
+    max-height: 875px;
+    max-width: auto; /* you can use % */
+  }
+
   input[type=range] {
+    background: transparent;
     -webkit-appearance: none;
   }
   input[type=range]:focus {
+    background: transparent;
     outline: none;
   }
   input[type=range]::-webkit-slider-runnable-track {
-    background: #f00;
+    background: transparent;
     cursor: pointer;
   }
   input[type=range]::-webkit-slider-thumb {
@@ -99,7 +109,7 @@
     margin-top: -3.6px;
   }
   input[type=range]:focus::-webkit-slider-runnable-track {
-    background: #ac51b5;
+    background: transparent;
   }
   input[type=range]::-moz-range-track {
     width: 100%;
@@ -189,6 +199,7 @@
     <div id="player">
       <button class="button" id="play">Play</button>
       <button class= "button" id="pause">Pause</button>
+      <img id = "spear_slider" src="images/spear.png"/>
       <input type="range" id="time-select" min="0" max="20" step="1" value="0" />
       <span id="slider-value"></span>
     </div>
@@ -703,11 +714,11 @@
     commander["Brynden Tully"]= "images/Bryden-Tully.png"
     commander["Edmure Tully"]= "images/Edmure-Tully.png"
     commander["Gregor Clegane"]= "images/Gregor-Clegane.png"
-    commander["Jamie Lannister"]= "images/Jamie-Lannister.png"
+    commander["Jaime Lannister"]= "images/Jamie-Lannister.png"
     commander["Joffery Baratheon"]= "images/Joffery-Baratheon.png"
     commander["Loras Tyrell"]= "images/Loras-Tyrell.png"
     commander["Mace Tyrell"]= "images/Mace-Tyrell.png"
-    commander["Mance Ryder"]= "images/Mance-Ryder.png"
+    commander["Mance Rayder"]= "images/Mance-Rayder.png"
     commander["Ramsey Bolton"]= "images/Ramsey-Bolton.png"
     commander["Renly Baratheon"]= "images/Renly-Baratheon.png"
     commander["Robb Stark"]= "images/Robb-Stark.png"
@@ -761,7 +772,7 @@
 
         var list_yScale = d3.scale.linear()
         .domain([0,Object.keys(event_id_mapper).length-1])
-        .range([height-60,15]);
+        .range([height-60,40]);
 
         var list_events = [];
 
@@ -825,6 +836,8 @@
     }
 
     d3.select("#timeline").selectAll("rect").on("click",function(d,i){
+      // remove all text and replace
+      d3.select("#side").selectAll("text").remove();
           
       d3.select("#timeline").selectAll("rect").style("fill", "transparent");
 
@@ -841,7 +854,8 @@
       d3.select("#side").selectAll("text").remove();
       d3.select("#side").selectAll("image").remove();
 
-      defender_outcome="";
+      console.log(d);
+      var defender_outcome="";
       if(d.attacker_outcome=="win"){
             defender_outcome= "loss";
       }
@@ -857,19 +871,16 @@
       addText(d.attack_commander, 100, 500, 16)
       addText(d.defender_commander, 400, 500, 16)
       addText("Army Size", 250, 550, 20)
-      addText(d.defender_size, 100, 550, 16)
-      addText(d.attacker_size, 400, 550, 16)
+      addText(d.attacker_size, 100, 550, 16)
+      addText(d.defender_size, 400, 550, 16)
       addText("Outcome", 250, 600, 20)
-      addText(defender_outcome, 100, 600, 50)
-      addText(d.attacker_outcome, 400, 600, 50)
+      addText(d.attacker_outcome, 100, 600, 50)
+      addText(defender_outcome, 400, 600, 50)
 
       addImage(200, 150, 100, 100, "http://www.clker.com/cliparts/7/l/N/9/Q/C/black-crossed-swords-hi.png")//crossed sword
       addImage(60, 320, 75, 75, affiliation[d.attacker_king])//attacker banner
       addImage(360, 320, 75, 75, affiliation[d.defender_king])//defender banner
       addImage(0, 100, 200, 200, commander[d.main_attacker])//attacker king
-      console.log(d.main_attacker);
-      console.log(typeof(d.main_attacker));
-      console.log(commander[d.main_attacker])
       addImage(300, 100, 200, 200, commander[d.main_defender])//defender king
 
       side.append('image')
@@ -880,14 +891,24 @@
         .attr('x', 0)
         .attr('y', 120)
         .attr("opacity", 0.200);
-
-          // if (currentColor=="transparent"){
-          //   d3.select("#side").selectAll("text").remove();
-          //   addText("Please Select a Battle",350,30,36)
-          // }
       });
 
-          
+  // Before clicking on a battle the initial battle screen
+    // crossed swords
+    addImage(200, 150, 100, 100, "http://www.clker.com/cliparts/7/l/N/9/Q/C/black-crossed-swords-hi.png")
+    // blood overlay
+    side.append('image')
+        .attr('xlink:href',"http://www.imarvintpa.com/Mapping/Overlays/Blood/Blood%20splatter%2019-sc.png")
+        .attr('class', 'pico')
+        .attr('height', 700)
+        .attr('width', 700)
+        .attr('x', 0)
+        .attr('y', 120)
+        .attr("opacity", 0.200);
+
+    // prompt to select a
+    addText("Select a Battle",250,30,36);
+
       
       
       
