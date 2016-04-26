@@ -836,6 +836,8 @@
     }
 
     d3.select("#timeline").selectAll("rect").on("click",function(d,i){
+      // remove all text and replace
+      d3.select("#side").selectAll("text").remove();
           
       d3.select("#timeline").selectAll("rect").style("fill", "transparent");
 
@@ -892,13 +894,28 @@
         .attr('y', 120)
         .attr("opacity", 0.200);
 
-          // if (currentColor=="transparent"){
-          //   d3.select("#side").selectAll("text").remove();
-          //   addText("Please Select a Battle",350,30,36)
-          // }
+          if (currentColor=="transparent"){
+            d3.select("#side").selectAll("text").remove();
+            addText("Please Select a Battle",350,30,36)
+          }
       });
 
-          
+  // Before clicking on a battle the initial battle screen
+    // crossed swords
+    addImage(200, 150, 100, 100, "http://www.clker.com/cliparts/7/l/N/9/Q/C/black-crossed-swords-hi.png")
+    // blood overlay
+    side.append('image')
+        .attr('xlink:href',"http://www.imarvintpa.com/Mapping/Overlays/Blood/Blood%20splatter%2019-sc.png")
+        .attr('class', 'pico')
+        .attr('height', 700)
+        .attr('width', 700)
+        .attr('x', 0)
+        .attr('y', 120)
+        .attr("opacity", 0.200);
+
+    // prompt to select a
+    addText("Select a Battle",250,30,36);
+
       
       
       
