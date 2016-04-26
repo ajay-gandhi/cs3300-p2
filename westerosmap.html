@@ -12,7 +12,7 @@
     stroke: #000;
     stroke-width: 2px;
   }
-  .header{ 
+  .header { 
     position:relative;
     
     margin-top: 0px; 
@@ -205,7 +205,7 @@
     <div id="player">
       <button class="button" id="play">Play</button>
       <button class= "button" id="pause">Pause</button>
-      <img id = "spear_slider" src="images/spear.png"/>
+      <img id="spear_slider" src="images/spear.png"/>
       <input type="range" id="time-select" min="0" max="20" step="1" value="0" />
       <span id="slider-value"></span>
     </div>
@@ -230,9 +230,9 @@
 
     var battle_data, route_data, location_mapper = {}, affiliation_mapper = {};
 
-    var banner= d3.select('#logo')
+    var banner = d3.select('#logo')
                   .append('svg')
-                  .attr('width', 3000)
+                  .attr('width', 1400)
                   .attr('height', 150);
     
     banner.append('image')
@@ -412,6 +412,13 @@
       d3.select('#slider-value').text(current_step);
       d3.select('#player #time-select')[0][0].value = current_step;
 
+      // Stop at this step
+      if (!IS_PLAYING) {
+        d3.selectAll('.army').transition();
+        finish_step();
+        return;
+      }
+
       // Setup current time step armies
       var starts_now = route_data.filter(function (d) {
         return d.start_time == current_step;
@@ -504,7 +511,7 @@
       });
 
       // Schedule next step if not last and if playing
-      if (current_step < LAST_STEP && IS_PLAYING)
+      if (current_step < LAST_STEP)
         next_step = setTimeout(do_step, STEP_DURATION);
 
       current_step++;
@@ -624,6 +631,10 @@
         .remove();
     }
 
+    function finish_step () {
+      console.log('done lol');
+    }
+
     /**************************************************************************/
 
     /**
@@ -669,15 +680,14 @@
       return color;
     }
 
+    /**************************************************************************/
+
     d3.select('#player #play').on('click', function () {
       IS_PLAYING = true;
       do_step();
     });
     d3.select('#player #pause').on('click', function () {
       IS_PLAYING = false;
-      // Pause current transitions
-      d3.selectAll('.army').transition();
-      clearTimeout(next_step);
     });
     d3.select('#player #time-select').on('input', function () {
       d3.select('#slider-value').text(this.value);
@@ -685,7 +695,7 @@
       current_step = this.value;
       goto_step();
     });
-    
+
     var timeline= d3.select("#timeline")
                     .append("svg")
                     .attr("width",175)
@@ -694,8 +704,8 @@
 
     var side = d3.select("#side")
                 .append("svg")
-                .attr("width", 500)
-                .attr("height", 770);
+                .attr("width", 700)
+                .attr("height", 700);
     
     var event_info = {};
     var event_id_mapper = {};
@@ -889,7 +899,7 @@
       side.append('image')
         .attr('xlink:href',"http://www.imarvintpa.com/Mapping/Overlays/Blood/Blood%20splatter%2019-sc.png")
         .attr('class', 'pico')
-        .attr('height', 700)
+        .attr('height', 600)
         .attr('width', 700)
         .attr('x', 0)
         .attr('y', 120)
