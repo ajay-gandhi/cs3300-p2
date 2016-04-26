@@ -70,22 +70,31 @@
   }
   #player #time-select {
     position: absolute;
-    top: 360;
-    left: -370px;
+    top: 390;
+    left: -375px;
     transform: rotate(90deg);
     height: 20px;
     width: 720px;
   }
 
+  #spear_slider {
+    position: absolute;
+    top:-32;
+    left: -40;
+    max-height: 875px;
+    max-width: auto; /* you can use % */
+  }
+
   input[type=range] {
+    background: transparent;
     -webkit-appearance: none;
   }
   input[type=range]:focus {
+    background: transparent;
     outline: none;
   }
   input[type=range]::-webkit-slider-runnable-track {
-    background: #500;
-    background-image: url("images/spear.png");
+    background: transparent;
     cursor: pointer;
   }
   input[type=range]::-webkit-slider-thumb {
@@ -100,8 +109,7 @@
     margin-top: -3.6px;
   }
   input[type=range]:focus::-webkit-slider-runnable-track {
-    background: #ac51b5;
-    background-image: url("images/spear.png");
+    background: transparent;
   }
   input[type=range]::-moz-range-track {
     width: 100%;
@@ -191,6 +199,7 @@
     <div id="player">
       <button class="button" id="play">Play</button>
       <button class= "button" id="pause">Pause</button>
+      <img id = "spear_slider" src="images/spear.png"/>
       <input type="range" id="time-select" min="0" max="20" step="1" value="0" />
       <span id="slider-value"></span>
     </div>
@@ -763,7 +772,7 @@
 
         var list_yScale = d3.scale.linear()
         .domain([0,Object.keys(event_id_mapper).length-1])
-        .range([height-60,15]);
+        .range([height-60,40]);
 
         var list_events = [];
 
@@ -895,7 +904,5 @@
       
   });
   </script>
-
-      <img src="images/spear.png"/>
 </body>
 </html>
