@@ -30,7 +30,7 @@ Stannis Baratheon,Erren Florent,Bitterbridge,King's Landing,12,13,25000,25000,20
 Stannis Baratheon,Erren Florent,King's Landing,King's Landing,13,14,25000,0,20,Battle of the Blackwater,1
 Renly Baratheon,Loras Tyrell,Bitterbridge,Bitterbridge,10,11,80000,80000,,,-
 Stannis Baratheon,Stannis Baratheon,King's Landing,King's Landing,13,14,7250,2500,20,Battle of the Blackwater,0
-Lannister,Stafford Lannister,Lannisport,Lannisport,9,10,10000,0,15,Battle of Oxcross,1
+Lannister,Stafford Lannister,Lannisport,Oxcross,9,10,10000,0,15,Battle of Oxcross,1
 Stark,Robb Stark,Riverrun,Oxcross,9,10,6000,6000,15,Battle of the Oxcross,0
 Stannis Baratheon,Stannis Baratheon,Dragonstone,Storm's End,8,11,5000,5000,16,Siege of Storm's End,0
 Renly Baratheon,Renly Baratheon,Bitterbridge,Storm's End,10,11,20000,0,16,Siege of Storm's End,1
@@ -51,7 +51,7 @@ Lannister,Gregar Clegane,Crossroad Inn,Harrenhal,16,17,10000,10000,25,Retaking o
 Lannister,Roose Bolton,Duskendale,Twins,16,17,3500,3500,26,Red Wedding,0
 Stark,Robb Stark,Twins,Twins,16,17,3500,0,26,Red Wedding,1
 Lannister,Frey,Twins,Seagard,17,18,4000,4000,27,Siege of Seagard,0
-Stannis Baratheon,Stannis Baratheon,Dragonstone,Castle Black,17,18,2500,3000,28,Battle of Castle Black,0
+Stannis Baratheon,Stannis Baratheon,Dragonstone,Castle Black,15,18,2500,3000,28,Battle of Castle Black,0
 Lannister,Ramsay Snow,Winterfell,Moat Cailin,17,18,600,6000,29,Siege of Moat Cailin,0
 Lannister,Jaime Lannister,Whispering Woods,King's Landing,17,19,1,1,,,0
 Stannis Baratheon,Stannis Baratheon,Castle Black,Deepwood Motte,18,19,3000,4500,31,Retaking of Deepwood Motte,0
