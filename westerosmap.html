@@ -7,14 +7,22 @@
     stroke: #000;
     stroke-width: 2px;
   }
-
+  .header{ 
+    position:relative;
+    
+    margin-top: 0px; 
+    margin-left: 0px; 
+     
+    height: 150px; 
+   font-family: "High Tower Text";
+  }
   .section {
     float: left;
     height: 770px;
     margin: 5px;
   }
   .side {
-    width: 710px;
+    width: 500px;
     font-family: "High Tower Text";
   }
   .middle {
@@ -25,6 +33,17 @@
   .map {
     width: 400px;
   }
+  .button {
+    background-color: #4CAF50; 
+    border: none;
+    color: white;
+    
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    border-radius: 12px;
+    font-size: 12px;
+}
   #banner-container {
     padding-top: 8px;
     width: 100px;
@@ -140,9 +159,11 @@
   input[type=range]:focus::-ms-fill-upper {
     background: #ac51b5;
   }
+  
   </style>
 </head>
 <body>
+  <div class="header" id="logo"></div>
   <div class="section" id="banner-container">
     <div id="lannister-banner" class="banner">
       <div class="banner-label">Lannister</div>
@@ -168,8 +189,8 @@
   <div class="section map" id="map"></div>
   <div class="section middle" id="timeline">
     <div id="player">
-      <button id="play">Play</button>
-      <button id="pause">Pause</button>
+      <button class="button" id="play">Play</button>
+      <button class= "button" id="pause">Pause</button>
       <input type="range" id="time-select" min="0" max="20" step="1" value="0" />
       <span id="slider-value"></span>
     </div>
@@ -193,6 +214,54 @@
         y_scale    = d3.scale.linear();
 
     var battle_data, route_data, location_mapper = {}, affiliation_mapper = {};
+
+    var banner= d3.select('#logo')
+                  .append('svg')
+                  .attr('width', 3000)
+                  .attr('height', 150);
+
+    banner.append('image')
+        .attr('xlink:href',"images/Game_of_Thrones_logo.png")
+        .attr('height', 100)
+        .attr('width', 600)
+        .attr('x', 400)
+        .attr('y', 0);
+
+    banner.append('image')
+        .attr('xlink:href',"images/baratheon-emblem.png")
+        .attr('height', 120)
+        .attr('width', 100)
+        .attr('x', 50)
+        .attr('y', 0);
+
+    banner.append('image')
+        .attr('xlink:href',"images/Greyjoy-emblem.png")
+        .attr('height', 120)
+        .attr('width', 100)
+        .attr('x', 250)
+        .attr('y', 0);
+
+    banner.append('image')
+        .attr('xlink:href',"images/lannister-emblem.png")
+        .attr('height', 120)
+        .attr('width', 100)
+        .attr('x', 1050)
+        .attr('y', 0);
+
+    banner.append('image')
+        .attr('xlink:href',"images/stark-emblem.png")
+        .attr('height', 120)
+        .attr('width', 100)
+        .attr('x', 1250)
+        .attr('y', 0);
+
+    banner.append("text")
+        .text("War of the Five Kings")
+        .attr("x", 700)
+        .attr("y", 120 )
+        .style("text-anchor","middle")
+        .style("font-size", 36)
+        .style("fill", "black");
 
     var army_opacity = 0.7;
     var hidden_families = {
@@ -345,7 +414,7 @@
       starts_now.forEach(function (m) {
         var army = g.select('#' + single_word(m.party_leader));
         if (army.empty()) {
-          console.log(m.affiliation.toLowerCase(), hidden_families[m.affiliation.toLowerCase()]);
+          //console.log(m.affiliation.toLowerCase(), hidden_families[m.affiliation.toLowerCase()]);
           // Must create army
           g.append('circle')
             .style('fill', affiliation_mapper[m.affiliation])
@@ -446,7 +515,7 @@
         return d.end_time == current_step;
       });
 
-      console.log(starts_now, moving_now, ending_now);
+      //console.log(starts_now, moving_now, ending_now);
 
       // Armies that start now should just appear and stay at their start location
       starts_now.forEach(function (m) {
@@ -613,7 +682,7 @@
 
     var side = d3.select("#side")
                 .append("svg")
-                .attr("width", 700)
+                .attr("width", 500)
                 .attr("height", 770);
     
     var event_info = {};
@@ -621,13 +690,37 @@
 
     var affiliation = []; // create an empty array
       
-    affiliation["Lannister"] = "images/Lannister-Emblem.png";
-    affiliation["Greyjoy"]="images/Greyjoy-Emblem.png"; 
-    affiliation["Stark"]="images/stark-emblem.png";
-    affiliation["Renly"]="images/renly-emblem.png";
-    affiliation["Stannis"]="images/stannis-emblem.png";
+    affiliation["Joffery Baratheon"] = "images/Lannister-Emblem.png";
+    affiliation["Balon Greyjoy"]="images/Greyjoy-Emblem.png"; 
+    affiliation["Robb Stark"]="images/stark-emblem.png";
+    affiliation["Renly Baratheon"]="images/renly-emblem.png";
+    affiliation["Stannis Baratheon"]="images/stannis-emblem.png";
 
-  
+    var commander=[];
+
+    commander["Asha Greyjoy"]= "images/Asha-Greyjoy.png"
+    commander["Balon Greyjoy"]= "images/Balon-Greyjoy.png"
+    commander["Beric Dondarrion"]= "images/Beric-Dondarrion.png"
+    commander["Bran Stark"]= "images/Bran-Stark.png"
+    commander["Brynden Tully"]= "images/Bryden-Tully.png"
+    commander["Edmure Tully"]= "images/Edmure-Tully.png"
+    commander["Gregor Clegane"]= "images/Gregor-Clegane.png"
+    commander["Jamie Lannister"]= "images/Jamie-Lannister.png"
+    commander["Joffery Baratheon"]= "images/Joffery-Baratheon.png"
+    commander["Loras Tyrell"]= "images/Loras-Tyrell.png"
+    commander["Mace Tyrell"]= "images/Mace-Tyrell.png"
+    commander["Mance Ryder"]= "images/Mance-Ryder.png"
+    commander["Ramsey Bolton"]= "images/Ramsey-Bolton.png"
+    commander["Renly Baratheon"]= "images/Renly-Baratheon.png"
+    commander["Robb Stark"]= "images/Robb-Stark.png"
+    commander["Roose Bolton"]= "images/Roose-Bolton.png"
+    commander["Stannis Baratheon"]= "images/Stannis-Baratheon.png"
+    commander["Theon Greyjoy"]= "images/Theon-Greyjoy.png"
+    commander["Tyrion Lannister"]= "images/Tyrion-Lannister.png"
+    commander["Tywin Lannister"]= "images/Tywin-Lannister.png"
+    commander["Walder Frey"]= "images/Walder-Frey.png"
+
+
     d3.csv('battles.csv', function (err, battles) {
       // list out all events
       // Map appropriate data to numbers
@@ -645,14 +738,18 @@
             
             // attacker info
             b.attacker_1    = b.attacker_1;
-            b.attacker_size = Number(b.attacker_size);
+            b.attacker_size = b.attacker_size;
             b.attacker_outcome = b.attacker_outcome;
             b.attack_commander = b.attacker_commander;
+            b.attacker_king = b.attacker_king;
+            b.main_attacker=b.main_attacker;
 
             // defender info
             b.defender_1       = b.defender_1;
-            b.defender_size    = Number(b.defender_size);
+            b.defender_size    = b.defender_size;
             b.defender_commander = b.defender_commander;
+            b.defender_king = b.defender_king;
+            b.main_defender=b.main_defender;
 
             return b;
           });
@@ -744,6 +841,8 @@
 
 
       d3.select("#side").selectAll("text").remove();
+      d3.select("#side").selectAll("image").remove();
+
       defender_outcome="";
       if(d.attacker_outcome=="win"){
             defender_outcome= "loss";
@@ -751,25 +850,38 @@
       else{
             defender_outcome="win";
       }
-      addText(d.name, 350,30,36)
-      addText(d.location+","+d.year, 350,60,20)
-      addText("Affiliation",350, 450, 20)
-      addText(d.attacker_1, 150, 450, 16)
-      addText(d.defender_1, 550, 450, 16)
-      addText("Commander Name",350, 500, 20)
-      addText(d.attack_commander, 150, 500, 16)
-      addText(d.defender_commander, 550, 500, 16)
-      addText("Army Size", 350, 550, 20)
-      addText(d.defender_size, 150, 550, 14)
-      addText(d.attacker_size, 550, 550, 14)
-      addText("Outcome", 350, 600, 20)
-      addText(defender_outcome, 150, 600, 50)
-      addText(d.attacker_outcome, 550, 600, 50)
+      addText(d.name, 250,30,36)
+      addText(d.location+","+d.year, 250,60,20)
+      addText("Affiliation",250, 450, 20)
+      addText(d.attacker_king, 100, 450, 16)
+      addText(d.defender_king, 400, 450, 16)
+      addText("Commander Name",250, 500, 20)
+      addText(d.attack_commander, 100, 500, 16)
+      addText(d.defender_commander, 400, 500, 16)
+      addText("Army Size", 250, 550, 20)
+      addText(d.defender_size, 100, 550, 16)
+      addText(d.attacker_size, 400, 550, 16)
+      addText("Outcome", 250, 600, 20)
+      addText(defender_outcome, 100, 600, 50)
+      addText(d.attacker_outcome, 400, 600, 50)
 
-      addImage(100, 320, 100, 100, affiliation[d.attacker_1])//attacker banner
-      addImage(500, 320, 100, 100, affiliation[d.defender_1])//defender banner
-      addImage(50, 100, 200, 200, "https://pbs.twimg.com/profile_images/2894841549/aa71ed53c4c478e11dab49e767c3072a.jpeg")//attacker king
-      addImage(450, 100, 200, 200, "https://pbs.twimg.com/profile_images/2894841549/aa71ed53c4c478e11dab49e767c3072a.jpeg")//defender king
+      addImage(200, 150, 100, 100, "http://www.clker.com/cliparts/7/l/N/9/Q/C/black-crossed-swords-hi.png")//crossed sword
+      addImage(60, 320, 75, 75, affiliation[d.attacker_king])//attacker banner
+      addImage(360, 320, 75, 75, affiliation[d.defender_king])//defender banner
+      addImage(0, 100, 200, 200, commander[d.main_attacker])//attacker king
+      console.log(d.main_attacker);
+      console.log(typeof(d.main_attacker));
+      console.log(commander[d.main_attacker])
+      addImage(300, 100, 200, 200, commander[d.main_defender])//defender king
+
+      side.append('image')
+        .attr('xlink:href',"http://www.imarvintpa.com/Mapping/Overlays/Blood/Blood%20splatter%2019-sc.png")
+        .attr('class', 'pico')
+        .attr('height', 700)
+        .attr('width', 700)
+        .attr('x', 0)
+        .attr('y', 120)
+        .attr("opacity", 0.200);
 
           // if (currentColor=="transparent"){
           //   d3.select("#side").selectAll("text").remove();
@@ -778,15 +890,9 @@
       });
 
           
-      addImage(300, 150, 100, 100, "http://www.clker.com/cliparts/7/l/N/9/Q/C/black-crossed-swords-hi.png")//crossed sword
-      side.append('image')
-        .attr('xlink:href',"http://www.imarvintpa.com/Mapping/Overlays/Blood/Blood%20splatter%2019-sc.png")
-        .attr('class', 'pico')
-        .attr('height', 700)
-        .attr('width', 700)
-        .attr('x', 0)
-        .attr('y', 120)
-        .attr("opacity", 0.3);
+      
+      
+      
   });
   </script>
 
