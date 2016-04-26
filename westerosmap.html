@@ -724,11 +724,11 @@
     commander["Brynden Tully"]= "images/Bryden-Tully.png"
     commander["Edmure Tully"]= "images/Edmure-Tully.png"
     commander["Gregor Clegane"]= "images/Gregor-Clegane.png"
-    commander["Jamie Lannister"]= "images/Jamie-Lannister.png"
+    commander["Jaime Lannister"]= "images/Jamie-Lannister.png"
     commander["Joffery Baratheon"]= "images/Joffery-Baratheon.png"
     commander["Loras Tyrell"]= "images/Loras-Tyrell.png"
     commander["Mace Tyrell"]= "images/Mace-Tyrell.png"
-    commander["Mance Ryder"]= "images/Mance-Ryder.png"
+    commander["Mance Rayder"]= "images/Mance-Rayder.png"
     commander["Ramsey Bolton"]= "images/Ramsey-Bolton.png"
     commander["Renly Baratheon"]= "images/Renly-Baratheon.png"
     commander["Robb Stark"]= "images/Robb-Stark.png"
@@ -864,7 +864,8 @@
       d3.select("#side").selectAll("text").remove();
       d3.select("#side").selectAll("image").remove();
 
-      defender_outcome="";
+      console.log(d);
+      var defender_outcome="";
       if(d.attacker_outcome=="win"){
             defender_outcome= "loss";
       }
@@ -880,19 +881,16 @@
       addText(d.attack_commander, 100, 500, 16)
       addText(d.defender_commander, 400, 500, 16)
       addText("Army Size", 250, 550, 20)
-      addText(d.defender_size, 100, 550, 16)
-      addText(d.attacker_size, 400, 550, 16)
+      addText(d.attacker_size, 100, 550, 16)
+      addText(d.defender_size, 400, 550, 16)
       addText("Outcome", 250, 600, 20)
-      addText(defender_outcome, 100, 600, 50)
-      addText(d.attacker_outcome, 400, 600, 50)
+      addText(d.attacker_outcome, 100, 600, 50)
+      addText(defender_outcome, 400, 600, 50)
 
       addImage(200, 150, 100, 100, "http://www.clker.com/cliparts/7/l/N/9/Q/C/black-crossed-swords-hi.png")//crossed sword
       addImage(60, 320, 75, 75, affiliation[d.attacker_king])//attacker banner
       addImage(360, 320, 75, 75, affiliation[d.defender_king])//defender banner
       addImage(0, 100, 200, 200, commander[d.main_attacker])//attacker king
-      console.log(d.main_attacker);
-      console.log(typeof(d.main_attacker));
-      console.log(commander[d.main_attacker])
       addImage(300, 100, 200, 200, commander[d.main_defender])//defender king
 
       side.append('image')
@@ -903,11 +901,6 @@
         .attr('x', 0)
         .attr('y', 120)
         .attr("opacity", 0.200);
-
-          if (currentColor=="transparent"){
-            d3.select("#side").selectAll("text").remove();
-            addText("Please Select a Battle",350,30,36)
-          }
       });
 
   // Before clicking on a battle the initial battle screen
