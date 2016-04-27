@@ -64,9 +64,6 @@
     margin-bottom: 15px;
     cursor: pointer;
   }
-  img.hidden-family {
-    opacity: 0.5;
-  }
 
   #player {
     position: relative;
@@ -130,12 +127,12 @@
       <image xlink:href="images/Game_of_Thrones_logo.png" height="100" width="600" x="300" y="0" />
       <line stroke-width="2" stroke="black" x1="0" y1="10" x2="1500" y2="10" />
 
-      <image xlink:href="images/stannis-emblem.png" height="110" width="100" x="0" y="10" />
-      <image xlink:href="images/greyjoy-emblem.png" height="110" width="100" x="100" y="10" />
-      <image xlink:href="images/lannister-emblem.png" height="110" width="100" x="200" y="10" />
-      <image xlink:href="images/stark-emblem.png" height="110" width="100" x="900" y="10" />
-      <image xlink:href="images/renly-emblem.png" height="110" width="100" x="1000" y="10" />
-      <image xlink:href="images/bolton-emblem.png" height="110" width="100" x="1100" y="10" />
+      <image xlink:href="images/stannis-emblem.png" cursor="pointer" id="stannis-emblem" height="110" width="100" x="0" y="10" />
+      <image xlink:href="images/greyjoy-emblem.png" cursor="pointer" id="greyjoy-emblem" height="110" width="100" x="100" y="10" />
+      <image xlink:href="images/lannister-emblem.png" cursor="pointer" id="lannister-emblem" height="110" width="100" x="200" y="10" />
+      <image xlink:href="images/stark-emblem.png" cursor="pointer" id="stark-emblem" height="110" width="100" x="900" y="10" />
+      <image xlink:href="images/renly-emblem.png" cursor="pointer" id="renly-emblem" height="110" width="100" x="1000" y="10" />
+      <image xlink:href="images/bolton-emblem.png" id="bolton-emblem" height="110" width="100" x="1100" y="10" />
 
       <text x="600" y="120" text-anchor="middle" font-size="36" fill="black">War of the Five Kings</text>
     </svg>
@@ -209,7 +206,8 @@
       'renly':     false
     }
 
-    d3.selectAll('div.banner').on('click', function () {
+    // Hiding armies
+    d3.selectAll('#logo image').on('click', function () {
       var family = this.id.split('-')[0];
       hidden_families[family] = !hidden_families[family];
 
@@ -218,13 +216,10 @@
         .filter(function (a) {
           return d3.select(this).classed(family);
         })
-        .style('opacity', hidden_families[family] ? '0' : army_opacity);
+        .style('opacity', hidden_families[family] ? 0 : army_opacity);
 
       // Toggle opacity of image
-      var had_class = d3.select(this).select('img').classed('hidden-family');
-      d3.select(this)
-        .select('img')
-        .classed('hidden-family', !had_class);
+      d3.select(this).attr('opacity', hidden_families[family] ? 0.6 : 1);
     });
 
     /****************************** Westeros Map ******************************/
@@ -356,7 +351,6 @@
       // Stop at this step
       if (!IS_PLAYING) {
         d3.selectAll('.army').transition();
-        finish_step();
         return;
       }
 
@@ -479,6 +473,8 @@
      */
     function goto_step () {
       var current_armies = [];
+      d3.select('#slider-value').text(current_step);
+      d3.select('#player #time-select')[0][0].value = current_step;
 
       // Grab relevant armies
       var starts_now = route_data.filter(function (d) {
@@ -596,16 +592,13 @@
           .transition()
           .attr('transform', 'translate(' + x_scale(loc.x) + ',' + y_scale(loc.y) + ')');
       });
+
       // Remove unneeded armies
       d3.selectAll('.army')
         .filter(function () {
           return current_armies.indexOf(this.id) < 0;
         })
         .remove();
-    }
-
-    function finish_step () {
-      console.log('done lol');
     }
 
     /**************************************************************************/
@@ -656,7 +649,6 @@
       goto_step();
     })
     d3.select('#player #time-select').on('input', function () {
-      d3.select('#slider-value').text(this.value);
       IS_PLAYING = false;
       current_step = this.value;
       goto_step();
