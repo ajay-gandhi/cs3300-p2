@@ -30,48 +30,22 @@
     stroke-width: 2px;
   }
   #timeline {
-    padding-left: 20px;
     width: 175px;
     font-family: "High Tower Text";
-  }
-  .button {
-    height: 36;
-    width: auto;
-    border: none;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    cursor: pointer;
   }
   #side {
     width: 500px;
     font-family: "High Tower Text";
   }
-  #banner-container {
-    padding-top: 8px;
-    width: 100px;
-  }
-  #banner-container div.banner-label {
-    width: 95px;
-    font-family: "High Tower Text";
-    text-align: center;
-    padding-bottom: 5px;
-    cursor: pointer;
-  }
-  #banner-container img {
-    width: 95px;
-    height: 114px;
-    margin-bottom: 15px;
-    cursor: pointer;
-  }
 
-  #player {
+  #slider-wrapper {
+    width: 40px;
     position: relative;
   }
-  #player #time-select {
+  #slider {
     position: absolute;
-    top: 390;
-    left: -375px;
+    top: 390px;
+    left: -344px;
     transform: rotate(90deg);
     height: 20px;
     width: 720px;
@@ -79,10 +53,9 @@
 
   #spear_slider {
     position: absolute;
-    top:-32;
-    left: -40;
-    max-height: 875px;
-    max-width: auto; /* you can use % */
+    top: -70px;
+    left: -10px;
+    height: 900px;
   }
 
   /**
@@ -97,7 +70,7 @@
     cursor: pointer;
   }
   input[type=range]::-webkit-slider-thumb {
-    height: 29px;
+    height: 30px;
     width: 30px;
     border-radius: 7px;
     background-image: url("images/slider.png");
@@ -111,7 +84,7 @@
     cursor: pointer;
   }
   input[type=range]::-moz-range-thumb {
-    height: 29px;
+    height: 30px;
     width: 30px;
     border-radius: 7px;
     background-image: url("images/slider.png");
@@ -126,50 +99,22 @@
     <svg id="banner" width="1400" height="150">
       <image xlink:href="images/Game_of_Thrones_logo.png" height="100" width="600" x="300" y="0" />
       <line stroke-width="2" stroke="black" x1="0" y1="10" x2="1500" y2="10" />
-
       <image xlink:href="images/stannis-emblem.png" cursor="pointer" id="stannis-emblem" height="110" width="100" x="0" y="10" />
       <image xlink:href="images/greyjoy-emblem.png" cursor="pointer" id="greyjoy-emblem" height="110" width="100" x="100" y="10" />
       <image xlink:href="images/lannister-emblem.png" cursor="pointer" id="lannister-emblem" height="110" width="100" x="200" y="10" />
       <image xlink:href="images/stark-emblem.png" cursor="pointer" id="stark-emblem" height="110" width="100" x="900" y="10" />
       <image xlink:href="images/renly-emblem.png" cursor="pointer" id="renly-emblem" height="110" width="100" x="1000" y="10" />
       <image xlink:href="images/bolton-emblem.png" id="bolton-emblem" height="110" width="100" x="1100" y="10" />
-
       <text x="600" y="120" text-anchor="middle" font-size="36" fill="black">War of the Five Kings</text>
     </svg>
   </div>
-  <!-- <div class="section" id="banner-container">
-    <div id="lannister-banner" class="banner">
-      <div class="banner-label">Lannister</div>
-      <img src="images/lannister-emblem.png"/>
-    </div>
-    <div id="greyjoy-banner" class="banner">
-      <div class="banner-label">Greyjoy</div>
-      <img src="images/greyjoy-emblem.png"/>
-    </div>
-    <div id="stannis-banner" class="banner">
-      <div class="banner-label">Stannis</div>
-      <img src="images/stannis-emblem.png"/>
-    </div>
-    <div id="stark-banner" class="banner">
-      <div class="banner-label">Stark</div>
-      <img src="images/stark-emblem.png"/>
-    </div>
-    <div id="renly-banner" class="banner">
-      <div class="banner-label">Renly</div>
-      <img src="images/renly-emblem.png"/>
-    </div>
-  </div> -->
-  <div class="section" id="map"></div>
-  <div class="section" id="timeline">
-    <div id="player">
-      <img class="button" id="play"  src="images/play.png"/>
-      <img class="button" id="pause" src="images/pause.png"/>
-      <img class="button" id="reset" src="images/reset.png"/>
-      <img id="spear_slider" src="images/spear.png"/>
-      <input type="range" id="time-select" min="0" max="20" step="1" value="0" />
-      <span id="slider-value">0</span>
-    </div>
+  <div class="section" id="slider-wrapper">
+    <img id="spear_slider" src="images/spear.png"/>
+    <input type="range" id="slider" min="0" max="20" step="1" value="0" />
+    <span id="slider-value">0</span>
   </div>
+  <div class="section" id="map"></div>
+  <div class="section" id="timeline"></div>
   <div class="section" id="side"></div>
 
   <script>
@@ -188,7 +133,7 @@
         x_scale    = d3.scale.linear(),
         y_scale    = d3.scale.linear();
 
-    var battle_data, route_data, location_mapper = {};
+    var battle_data, battle_highlight, route_data, location_mapper = {};
     var affiliation_mapper = {
       'Greyjoy':   '#a24f00',
       'Lannister': '#850c11',
@@ -236,8 +181,47 @@
       .scaleExtent([1, 4])
       .on('zoom', zoom_func);
 
+    // Setup player
+    svg.append('rect')
+      .attr('fill', '#fff')
+      .attr('opacity', '0.5')
+      .attr('height', '84')
+      .attr('width', '94')
+      .attr('rx', '8')
+      .attr('ry', '8')
+      .attr('x', '8')
+      .attr('y', '8');
+
+    svg.append('image')
+      .attr('xlink:href', 'images/play.png')
+      .attr('id', 'play')
+      .attr('height', '36')
+      .attr('width', '40')
+      .attr('x', '15')
+      .attr('y', '15')
+      .attr('cursor', 'pointer');
+
+    svg.append('image')
+      .attr('xlink:href', 'images/pause.png')
+      .attr('id', 'pause')
+      .attr('height', '36')
+      .attr('width', '40')
+      .attr('x', '55')
+      .attr('y', '15')
+      .attr('cursor', 'pointer');
+
+    svg.append('image')
+      .attr('xlink:href', 'images/reset.png')
+      .attr('id', 'reset')
+      .attr('height', '36')
+      .attr('width', '100')
+      .attr('x', '5')
+      .attr('y', '50')
+      .attr('cursor', 'pointer');
+
     var swords = [];
 
+    // Setup battle icons
     d3.xml('westeros_test.svg', 'image/svg+xml', function (err, xml) {
       if (err) throw err;
       var importedNode = document.importNode(xml.documentElement, true);
@@ -346,7 +330,7 @@
       if (current_step == LAST_STEP) return;
 
       d3.select('#slider-value').text(current_step);
-      d3.select('#player #time-select')[0][0].value = current_step;
+      d3.select('#slider')[0][0].value = current_step;
 
       // Stop at this step
       if (!IS_PLAYING) {
@@ -474,7 +458,7 @@
     function goto_step () {
       var current_armies = [];
       d3.select('#slider-value').text(current_step);
-      d3.select('#player #time-select')[0][0].value = current_step;
+      d3.select('#slider')[0][0].value = current_step;
 
       // Grab relevant armies
       var starts_now = route_data.filter(function (d) {
@@ -587,6 +571,11 @@
       });
       current_battles.forEach(function (b, i) {
         var loc = location_mapper[b.location];
+        if (b.battle_number == battle_highlight) {
+          // Change color
+          swords[i].selectAll('*').attr('fill', '#ffffff');
+        }
+
         swords[i]
           .attr('transform', 'translate(' + x_scale(loc.x) + ',' + y_scale(loc.y) + ')scale(0.5)')
           .transition()
@@ -636,19 +625,19 @@
 
     /**************************************************************************/
 
-    d3.select('#player #play').on('click', function () {
+    d3.select('#play').on('click', function () {
       IS_PLAYING = true;
       do_step();
     });
-    d3.select('#player #pause').on('click', function () {
+    d3.select('#pause').on('click', function () {
       IS_PLAYING = false;
     });
-    d3.select('#player #reset').on('click',function (){
+    d3.select('#reset').on('click',function (){
       IS_PLAYING = false;
       current_step = 0;
       goto_step();
     })
-    d3.select('#player #time-select').on('input', function () {
+    d3.select('#slider').on('input', function () {
       IS_PLAYING = false;
       current_step = this.value;
       goto_step();
@@ -656,8 +645,8 @@
 
     var timeline= d3.select("#timeline")
                     .append("svg")
-                    .attr("width",175)
-                    .attr("height",725)
+                    .attr("width", 175)
+                    .attr("height", 725)
                     .style("border", "none");
 
     var side = d3.select("#side")
@@ -796,7 +785,8 @@
       IS_PLAYING = false;
       current_step = d.time_data;
       d3.select('#slider-value').text(d.time_data);
-      d3.select('#player #time-select')[0][0].value = d.time_data;
+      d3.select('#slider')[0][0].value = d.time_data;
+      battle_highlight = d.battle_number;
       goto_step();
 
 
