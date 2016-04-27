@@ -125,7 +125,21 @@
   </style>
 </head>
 <body>
-  <div class="header" id="logo"></div>
+  <div class="header" id="logo">
+    <svg id="banner" width="1400" height="150">
+      <image xlink:href="images/Game_of_Thrones_logo.png" height="100" width="600" x="300" y="0" />
+      <line stroke-width="2" stroke="black" x1="0" y1="10" x2="1500" y2="10" />
+
+      <image xlink:href="images/stannis-emblem.png" height="110" width="100" x="0" y="10" />
+      <image xlink:href="images/greyjoy-emblem.png" height="110" width="100" x="100" y="10" />
+      <image xlink:href="images/lannister-emblem.png" height="110" width="100" x="200" y="10" />
+      <image xlink:href="images/stark-emblem.png" height="110" width="100" x="900" y="10" />
+      <image xlink:href="images/renly-emblem.png" height="110" width="100" x="1000" y="10" />
+      <image xlink:href="images/bolton-emblem.png" height="110" width="100" x="1100" y="10" />
+
+      <text x="600" y="120" text-anchor="middle" font-size="36" fill="black">War of the Five Kings</text>
+    </svg>
+  </div>
   <!-- <div class="section" id="banner-container">
     <div id="lannister-banner" class="banner">
       <div class="banner-label">Lannister</div>
@@ -177,60 +191,14 @@
         x_scale    = d3.scale.linear(),
         y_scale    = d3.scale.linear();
 
-    var battle_data, route_data, location_mapper = {},
-        affiliation_mapper = {
-          'Greyjoy':   '#a24f00',
-          'Lannister': '#850c11',
-          'Stark':     '#4b4e61',
-          'Stannis':   '#ffff69',
-          'Renly':     '#1e5e30'
-        };
-
-    var banner = d3.select('#logo')
-                  .append('svg')
-                  .attr('width', 1400)
-                  .attr('height', 150);
-    
-    banner.append('image')
-        .attr('xlink:href',"images/Game_of_Thrones_logo.png")
-        .attr('height', 100)
-        .attr('width', 600)
-        .attr('x', 300)
-        .attr('y', 0);
-
-    
-    function addEmblem (x, url) {
-        banner.append('image')
-        .attr('xlink:href',url)
-        .attr('height', 110)
-        .attr('width', 100)
-        .attr('x', x)
-        .attr('y', 10);
+    var battle_data, route_data, location_mapper = {};
+    var affiliation_mapper = {
+      'Greyjoy':   '#a24f00',
+      'Lannister': '#850c11',
+      'Stark':     '#4b4e61',
+      'Stannis':   '#ffff69',
+      'Renly':     '#1e5e30'
     }
-
-    banner.append('line')
-          .attr("x1",0)
-          .attr("y1",10)
-          .attr("x2",1500)
-          .attr("y2",10)
-          .style("stroke-width", "2")
-          .style("stroke", "black"); 
-
-    addEmblem(0,"images/stannis-emblem.png");
-    addEmblem(100,"images/Greyjoy-emblem.png");
-    addEmblem(200,"images/lannister-emblem.png");
-
-    addEmblem(900,"images/stark-emblem.png");
-    addEmblem(1000,"images/renly-emblem.png");
-    addEmblem(1100,"images/bolton-emblem.png");
-    
-    banner.append("text")
-      .text("War of the Five Kings")
-      .attr("x", 600)
-      .attr("y", 120 )
-      .style("text-anchor","middle")
-      .style("font-size", 36)
-      .style("fill", "black");
 
     var army_opacity = 0.7;
     var hidden_families = {
@@ -792,11 +760,12 @@
       timeline.selectAll("rect")
         .data(list_events).enter()
         .append("rect")
-        .attr("x",8)
-        .attr("y", function (d){
-          var scaledY = list_yScale(list_events.length - iter - 1)-15
-          iter++
-          return scaledY })
+        .attr("x", 8)
+        .attr("y", function (d) {
+          var scaledY = list_yScale(list_events.length - iter - 1) - 15;
+          iter++;
+          return scaledY;
+        })
         .attr("height", 18)
         .attr("width", 165)
         .style("stroke", "none")
@@ -824,7 +793,7 @@
         .attr('y', y);
     }
 
-    d3.select("#timeline").selectAll("rect").on("click",function(d,i){
+    d3.select("#timeline").selectAll("rect").on("click", function(d, i) {
       // remove all text and replace
       d3.select("#side").selectAll("text").remove();
           
@@ -852,7 +821,7 @@
             defender_outcome="win";
       }
       addText(d.name, 250,30,36);
-      addText(d.location+","+d.year, 250,60,20);
+      addText(d.location + ", " + d.year, 250,60,20);
       addText("Affiliation",250, 450, 20);
       addText(d.attacker_king, 100, 450, 16);
       addText(d.defender_king, 400, 450, 16);
@@ -896,7 +865,7 @@
         .attr("opacity", 0.200);
 
     // prompt to select a
-    addText("Select a Battle",250,30,36);
+    addText("Select a Battle", 250, 30, 36);
       
   });
   </script>
