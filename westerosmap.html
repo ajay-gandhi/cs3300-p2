@@ -162,7 +162,7 @@
   <div class="section" id="side"></div>
 
   <script>
-    var STEP_DURATION = 4000, // Duration of a single time step
+    var STEP_DURATION = 2000, // Duration of a single time step
         LAST_STEP;            // Max # of frames
 
     var IS_PLAYING = false,   // true if the animation is running
@@ -281,7 +281,6 @@
 
       g.call(zoom_behavior);
       g.node().appendChild(importedNode);
-      g = g.append('g');
 
       // Create the battle icons
       d3.xml('swords.svg', 'image/svg+xml', function (err, xml) {
@@ -299,7 +298,7 @@
             .attr('transform', 'translate(20, 20) scale(0.05) rotate(180)')
             .append('use')
             .attr('xlink:href', '#swords');
-          // swords[i].attr('transform', 'translate(-100, 100)');
+          swords[i].attr('transform', 'translate(-100, 100)');
         }
       });
 
@@ -497,7 +496,10 @@
       });
       current_battles.forEach(function (b, i) {
         var loc = location_mapper[b.location];
-        swords[i].attr('transform', 'translate(' + x_scale(loc.x) + ',' + y_scale(loc.y) + ')');
+        swords[i]
+          .attr('transform', 'translate(' + x_scale(loc.x) + ',' + y_scale(loc.y) + ')scale(0.5)')
+          .transition()
+          .attr('transform', 'translate(' + x_scale(loc.x) + ',' + y_scale(loc.y) + ')');
       });
 
       // Schedule next step if not last and if playing
@@ -523,6 +525,8 @@
       var ending_now = route_data.filter(function (d) {
         return d.end_time == current_step;
       });
+
+      //console.log(starts_now, moving_now, ending_now);
 
       // Armies that start now should just appear and stay at their start location
       starts_now.forEach(function (m) {
