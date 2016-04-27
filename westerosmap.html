@@ -31,11 +31,11 @@
   }
   #timeline {
     padding-left: 20px;
-    width: 175px;
+    width: 200px;
     font-family: "High Tower Text";
   }
   .button {
-    height: 36;
+   
     width: auto;
     border: none;
     text-align: center;
@@ -63,6 +63,9 @@
     height: 114px;
     margin-bottom: 15px;
     cursor: pointer;
+  }
+  img.hidden-family {
+    opacity: 0.5;
   }
 
   #player {
@@ -123,16 +126,24 @@
 </head>
 <body>
   <div class="header" id="logo">
-    <svg id="banner" width="1400" height="150">
+    <svg id="banner" width="1200" height="150">
       <image xlink:href="images/Game_of_Thrones_logo.png" height="100" width="600" x="300" y="0" />
-      <line stroke-width="2" stroke="black" x1="0" y1="10" x2="1500" y2="10" />
+      <line stroke-width="2" stroke="black" x1="0" y1="10" x2="1200" y2="10" />
 
-      <image xlink:href="images/stannis-emblem.png" cursor="pointer" id="stannis-emblem" height="110" width="100" x="0" y="10" />
-      <image xlink:href="images/greyjoy-emblem.png" cursor="pointer" id="greyjoy-emblem" height="110" width="100" x="100" y="10" />
-      <image xlink:href="images/lannister-emblem.png" cursor="pointer" id="lannister-emblem" height="110" width="100" x="200" y="10" />
-      <image xlink:href="images/stark-emblem.png" cursor="pointer" id="stark-emblem" height="110" width="100" x="900" y="10" />
-      <image xlink:href="images/renly-emblem.png" cursor="pointer" id="renly-emblem" height="110" width="100" x="1000" y="10" />
-      <image xlink:href="images/bolton-emblem.png" id="bolton-emblem" height="110" width="100" x="1100" y="10" />
+      <image xlink:href="images/stannis-emblem.png" height="110" width="100" x="0" y="10" />
+        <text x="50" y="130" text-anchor="middle" font-size="13" fill="black"> House Baratheon</text>
+        <text x="50" y="140" text-anchor="middle" font-size="13" fill="black"> (Stannis)</text>
+      <image xlink:href="images/greyjoy-emblem.png" height="110" width="100" x="100" y="10" />
+       <text x="150" y="130" text-anchor="middle" font-size="13" fill="black">House Greyjoy</text>
+      <image xlink:href="images/lannister-emblem.png" height="110" width="100" x="200" y="10" />
+        <text x="250" y="130" text-anchor="middle" font-size="13" fill="black">House Lannister</text>
+      <image xlink:href="images/stark-emblem.png" height="110" width="100" x="900" y="10" />
+        <text x="950" y="130" text-anchor="middle" font-size="13" fill="black">House Stark</text>
+      <image xlink:href="images/renly-emblem.png" height="110" width="100" x="1000" y="10" />
+        <text x="1050" y="130" text-anchor="middle" font-size="13" fill="black">House Baratheon</text>
+        <text x="1050" y="140" text-anchor="middle" font-size="13" fill="black">(Renly)</text>
+      <image xlink:href="images/mimno-emblem.png" height="110" width="100" x="1100" y="10" />
+        <text x="1150" y="130" text-anchor="middle" font-size="13" fill="black">House Mimno(</text>
 
       <text x="600" y="120" text-anchor="middle" font-size="36" fill="black">War of the Five Kings</text>
     </svg>
@@ -162,9 +173,9 @@
   <div class="section" id="map"></div>
   <div class="section" id="timeline">
     <div id="player">
-      <img class="button" id="play"  src="images/play.png"/>
-      <img class="button" id="pause" src="images/pause.png"/>
-      <img class="button" id="reset" src="images/reset.png"/>
+      <img class="button" id="play"  src="images/play1.png"  height= "36";/>
+      <img class="button" id="pause" src="images/pause1.png"  height= "36";/>
+      <img class="button" id="reset" src="images/reset1.png"  height="44";/>
       <img id="spear_slider" src="images/spear.png"/>
       <input type="range" id="time-select" min="0" max="20" step="1" value="0" />
       <span id="slider-value">0</span>
@@ -206,8 +217,7 @@
       'renly':     false
     }
 
-    // Hiding armies
-    d3.selectAll('#logo image').on('click', function () {
+    d3.selectAll('div.banner').on('click', function () {
       var family = this.id.split('-')[0];
       hidden_families[family] = !hidden_families[family];
 
@@ -216,10 +226,13 @@
         .filter(function (a) {
           return d3.select(this).classed(family);
         })
-        .style('opacity', hidden_families[family] ? 0 : army_opacity);
+        .style('opacity', hidden_families[family] ? '0' : army_opacity);
 
       // Toggle opacity of image
-      d3.select(this).attr('opacity', hidden_families[family] ? 0.6 : 1);
+      var had_class = d3.select(this).select('img').classed('hidden-family');
+      d3.select(this)
+        .select('img')
+        .classed('hidden-family', !had_class);
     });
 
     /****************************** Westeros Map ******************************/
@@ -351,6 +364,7 @@
       // Stop at this step
       if (!IS_PLAYING) {
         d3.selectAll('.army').transition();
+        finish_step();
         return;
       }
 
@@ -473,8 +487,6 @@
      */
     function goto_step () {
       var current_armies = [];
-      d3.select('#slider-value').text(current_step);
-      d3.select('#player #time-select')[0][0].value = current_step;
 
       // Grab relevant armies
       var starts_now = route_data.filter(function (d) {
@@ -592,13 +604,16 @@
           .transition()
           .attr('transform', 'translate(' + x_scale(loc.x) + ',' + y_scale(loc.y) + ')');
       });
-
       // Remove unneeded armies
       d3.selectAll('.army')
         .filter(function () {
           return current_armies.indexOf(this.id) < 0;
         })
         .remove();
+    }
+
+    function finish_step () {
+      console.log('done lol');
     }
 
     /**************************************************************************/
@@ -649,6 +664,7 @@
       goto_step();
     })
     d3.select('#player #time-select').on('input', function () {
+      d3.select('#slider-value').text(this.value);
       IS_PLAYING = false;
       current_step = this.value;
       goto_step();
@@ -656,7 +672,7 @@
 
     var timeline= d3.select("#timeline")
                     .append("svg")
-                    .attr("width",175)
+                    .attr("width",200)
                     .attr("height",725)
                     .style("border", "none");
 
@@ -735,7 +751,7 @@
         .attr("x", 12)
         .attr("y", list_yScale(i))
         .text(event_id_mapper[id].name)
-        .style("font-size", 12)
+        .style("font-size", 14)
         .style("fill","black");
 
         // this is the sword of steel
@@ -814,6 +830,8 @@
       }
       addText(d.name, 250,30,36);
       addText(d.location + ", " + d.year, 250,60,20);
+      addText("Attacker", 100, 90,20);
+      addText("Defender", 400, 90,20);
       addText("Affiliation",250, 450, 20);
       addText(d.attacker_king, 100, 450, 16);
       addText(d.defender_king, 400, 450, 16);
@@ -857,7 +875,10 @@
         .attr("opacity", 0.200);
 
     // prompt to select a
-    addText("Select a Battle", 250, 30, 36);
+    addText("Instructions",250,30,36);
+    addText("1. Click a battle to view it's location on map and the battle stats",250,50,16);
+    addText("2. Press play and pause to view the overall War progression",250,70,16);
+    addText("3. Select banners along the top to view specific family battles",250,90,16);
       
   });
   </script>
