@@ -317,12 +317,8 @@
 
         // Map appropriate data to numbers
         battle_data = battles.map(function (b) {
-          b.battle_number = Number(b.battle_number);
-          b.attacker_size = Number(b.attacker_size);
-          b.defender_size = Number(b.defender_size);
           b.y_coord       = Number(b.y_coord);
           b.x_coord       = Number(b.x_coord);
-          b.episode       = Number(b.episode);
           b.location      = b.location.trim();
           return b;
         });
@@ -343,7 +339,6 @@
           route_data = routes.map(function (t) {
             t.start_time        = Number(t.start_time);
             t.end_time          = Number(t.end_time);
-            t.battle_id         = Number(t.battle_id);
             t.army_size_before  = Number(t.army_size_before);
             t.army_size_after   = Number(t.army_size_after);
             t.start_location    = t.start_location.trim();
@@ -385,6 +380,8 @@
      * Goes to current_step in the animation and animates to the following step.
      */
     function do_step () {
+      if (current_step == LAST_STEP) return;
+
       d3.select('#slider-value').text(current_step);
       d3.select('#player #time-select')[0][0].value = current_step;
 
@@ -615,6 +612,22 @@
         }
       });
 
+      var current_battles = battle_data.filter(function (b) {
+        return b.time_data == current_step && b.time_data !== '';
+      });
+
+      // Reset swords
+      swords.forEach(function (s) {
+        s.transition();
+        s.attr('transform', 'translate(-100, -100)');
+      });
+      current_battles.forEach(function (b, i) {
+        var loc = location_mapper[b.location];
+        swords[i]
+          .attr('transform', 'translate(' + x_scale(loc.x) + ',' + y_scale(loc.y) + ')scale(0.5)')
+          .transition()
+          .attr('transform', 'translate(' + x_scale(loc.x) + ',' + y_scale(loc.y) + ')');
+      });
       // Remove unneeded armies
       d3.selectAll('.army')
         .filter(function () {
@@ -695,121 +708,99 @@
     var event_info = {};
     var event_id_mapper = {};
 
-    var affiliation = []; // create an empty array
-      
-    affiliation["Joffery Baratheon"] = "images/Lannister-Emblem.png";
-    affiliation["Balon Greyjoy"]="images/Greyjoy-Emblem.png"; 
-    affiliation["Robb Stark"]="images/stark-emblem.png";
-    affiliation["Renly Baratheon"]="images/renly-emblem.png";
-    affiliation["Stannis Baratheon"]="images/stannis-emblem.png";
+    var affiliation = {
+      "Joffery Baratheon": "images/Lannister-Emblem.png",
+      "Balon Greyjoy":     "images/Greyjoy-Emblem.png",
+      "Robb Stark":        "images/stark-emblem.png",
+      "Renly Baratheon":   "images/renly-emblem.png",
+      "Stannis Baratheon": "images/stannis-emblem.png"
+    }
 
-    var commander=[];
-
-    commander["Asha Greyjoy"]= "images/Asha-Greyjoy.png"
-    commander["Balon Greyjoy"]= "images/Balon-Greyjoy.png"
-    commander["Beric Dondarrion"]= "images/Beric-Dondarrion.png"
-    commander["Bran Stark"]= "images/Bran-Stark.png"
-    commander["Brynden Tully"]= "images/Bryden-Tully.png"
-    commander["Edmure Tully"]= "images/Edmure-Tully.png"
-    commander["Gregor Clegane"]= "images/Gregor-Clegane.png"
-    commander["Jaime Lannister"]= "images/Jaime-Lannister.png"
-    commander["Joffery Baratheon"]= "images/Joffery-Baratheon.png"
-    commander["Loras Tyrell"]= "images/Loras-Tyrell.png"
-    commander["Mace Tyrell"]= "images/Mace-Tyrell.png"
-    commander["Mance Rayder"]= "images/Mance-Rayder.png"
-    commander["Ramsey Bolton"]= "images/Ramsey-Bolton.png"
-    commander["Renly Baratheon"]= "images/Renly-Baratheon.png"
-    commander["Robb Stark"]= "images/Robb-Stark.png"
-    commander["Roose Bolton"]= "images/Roose-Bolton.png"
-    commander["Stannis Baratheon"]= "images/Stannis-Baratheon.png"
-    commander["Theon Greyjoy"]= "images/Theon-Greyjoy.png"
-    commander["Tyrion Lannister"]= "images/Tyrion-Lannister.png"
-    commander["Tywin Lannister"]= "images/Tywin-Lannister.png"
-    commander["Walder Frey"]= "images/Walder-Frey.png"
-
+    var commander = {
+      "Asha Greyjoy":      "images/Asha-Greyjoy.png",
+      "Balon Greyjoy":     "images/Balon-Greyjoy.png",
+      "Beric Dondarrion":  "images/Beric-Dondarrion.png",
+      "Bran Stark":        "images/Bran-Stark.png",
+      "Brynden Tully":     "images/Bryden-Tully.png",
+      "Edmure Tully":      "images/Edmure-Tully.png",
+      "Gregor Clegane":    "images/Gregor-Clegane.png",
+      "Jaime Lannister":   "images/Jaime-Lannister.png",
+      "Joffery Baratheon": "images/Joffery-Baratheon.png",
+      "Loras Tyrell":      "images/Loras-Tyrell.png",
+      "Mace Tyrell":       "images/Mace-Tyrell.png",
+      "Mance Rayder":      "images/Mance-Rayder.png",
+      "Ramsey Bolton":     "images/Ramsey-Bolton.png",
+      "Renly Baratheon":   "images/Renly-Baratheon.png",
+      "Robb Stark":        "images/Robb-Stark.png",
+      "Roose Bolton":      "images/Roose-Bolton.png",
+      "Stannis Baratheon": "images/Stannis-Baratheon.png",
+      "Theon Greyjoy":     "images/Theon-Greyjoy.png",
+      "Tyrion Lannister":  "images/Tyrion-Lannister.png",
+      "Tywin Lannister":   "images/Tywin-Lannister.png",
+      "Walder Frey":       "images/Walder-Frey.png"
+    }
 
     d3.csv('battles.csv', function (err, battles) {
       // list out all events
       // Map appropriate data to numbers
       var event_info = battles.map(function (b) {
-            b.name          = b.name;
-            b.battle_number = Number(b.battle_number);
-            b.y_coord       = Number(b.y_coord);
-            b.x_coord       = Number(b.x_coord);
-            b.episode       = Number(b.episode);
-            b.location      = b.location.trim();
-            b.time_data     = Number(b.time_data);
+        b.battle_number = Number(b.battle_number);
+        b.y_coord       = Number(b.y_coord);
+        b.x_coord       = Number(b.x_coord);
+        b.episode       = Number(b.episode);
+        b.location      = b.location.trim();
+        b.time_data     = Number(b.time_data);
+        return b;
+      });
 
-            b.battle_type   = b.battle_type;
-            b.year= b.year;
-            
-            // attacker info
-            b.attacker_1    = b.attacker_1;
-            b.attacker_size = b.attacker_size;
-            b.attacker_outcome = b.attacker_outcome;
-            b.attack_commander = b.attacker_commander;
-            b.attacker_king = b.attacker_king;
-            b.main_attacker=b.main_attacker;
+      event_info.forEach(function (d) {
+        if (d.battle_number) {
+          event_id_mapper[d.battle_number] = d;
+        }
+      });
 
-            // defender info
-            b.defender_1       = b.defender_1;
-            b.defender_size    = b.defender_size;
-            b.defender_commander = b.defender_commander;
-            b.defender_king = b.defender_king;
-            b.main_defender=b.main_defender;
+      var list_yScale = d3.scale.linear()
+        .domain([0, Object.keys(event_id_mapper).length - 1])
+        .range([height - 60, 20]);
 
-            return b;
-          });
+      var list_events = [];
 
+      // accumulate a list of events
+      Object.keys(event_id_mapper).forEach(function (id,i){
+          list_events.push(event_id_mapper[id]);
+      });
 
-        event_info.forEach(function (d) {
-          if (d.battle_number){
-            event_id_mapper[d.battle_number] = d;
-          }
-        });
+      Object.keys(event_id_mapper).reverse().forEach(function (id,i){
+        timeline.append("text")
+        .attr("x", 12)
+        .attr("y", list_yScale(i))
+        .text(event_id_mapper[id].name)
+        .style("font-size", 12)
+        .style("fill","black");
 
-        var list_yScale = d3.scale.linear()
-        .domain([0,Object.keys(event_id_mapper).length-1])
-        .range([height-60,20]);
+        // this is the sword of steel
+        // timeline.append('image')
+        //           .attr('xlink:href','http://www.clker.com/cliparts/2/b/2/8/13663778451350263915sword.svg')
+        //           .attr('class', 'pico')
+        //           .attr('height', 30)
+        //           .attr('width', 20)
+        //           .attr('x', 0)
+        //           .attr('y', 3+i*18);
+      });
 
-        var list_events = [];
-
-        // accumulate a list of events
-        Object.keys(event_id_mapper).forEach(function (id,i){
-            list_events.push(event_id_mapper[id]);
-        });
-
-        Object.keys(event_id_mapper).reverse().forEach(function (id,i){
-          timeline.append("text")
-          .attr("x", 12)
-          .attr("y", list_yScale(i))
-          .text(event_id_mapper[id].name)
-          .style("font-size", 12)
-          .style("fill","black");
-
-          // this is the sword of steel
-          // timeline.append('image')
-          //           .attr('xlink:href','http://www.clker.com/cliparts/2/b/2/8/13663778451350263915sword.svg')
-          //           .attr('class', 'pico')
-          //           .attr('height', 30)
-          //           .attr('width', 20)
-          //           .attr('x', 0)
-          //           .attr('y', 3+i*18);
-        });
-
-        var iter = 0;
-        timeline.selectAll("rect")
-          .data(list_events).enter()
-          .append("rect")
-          .attr("x",8)
-          .attr("y", function (d){
-            var scaledY = list_yScale(list_events.length - iter - 1)-15
-            iter++
-            return scaledY })
-          .attr("height", 18)
-          .attr("width", 165)
-          .style("stroke", "none")
-          .style("fill", "transparent");
+      var iter = 0;
+      timeline.selectAll("rect")
+        .data(list_events).enter()
+        .append("rect")
+        .attr("x",8)
+        .attr("y", function (d){
+          var scaledY = list_yScale(list_events.length - iter - 1)-15
+          iter++
+          return scaledY })
+        .attr("height", 18)
+        .attr("width", 165)
+        .style("stroke", "none")
+        .style("fill", "transparent");
 
         // loop thorugh events to display them
         
