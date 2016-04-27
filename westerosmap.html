@@ -96,7 +96,7 @@
 </head>
 <body>
   <div class="header" id="logo">
-    <svg id="banner" width="1400" height="150">
+    <svg id="banner" width="1200" height="150">
       <image xlink:href="images/Game_of_Thrones_logo.png" height="100" width="600" x="300" y="0" />
       <line stroke-width="2" stroke="black" x1="0" y1="10" x2="1500" y2="10" />
       <image xlink:href="images/stannis-emblem.png" cursor="pointer" id="stannis-emblem" height="110" width="100" x="0" y="10" />
@@ -151,8 +151,7 @@
       'renly':     false
     }
 
-    // Hiding armies
-    d3.selectAll('#logo image').on('click', function () {
+    d3.selectAll('div.banner').on('click', function () {
       var family = this.id.split('-')[0];
       hidden_families[family] = !hidden_families[family];
 
@@ -161,10 +160,13 @@
         .filter(function (a) {
           return d3.select(this).classed(family);
         })
-        .style('opacity', hidden_families[family] ? 0 : army_opacity);
+        .style('opacity', hidden_families[family] ? '0' : army_opacity);
 
       // Toggle opacity of image
-      d3.select(this).attr('opacity', hidden_families[family] ? 0.6 : 1);
+      var had_class = d3.select(this).select('img').classed('hidden-family');
+      d3.select(this)
+        .select('img')
+        .classed('hidden-family', !had_class);
     });
 
     /****************************** Westeros Map ******************************/
@@ -335,6 +337,7 @@
       // Stop at this step
       if (!IS_PLAYING) {
         d3.selectAll('.army').transition();
+        finish_step();
         return;
       }
 
@@ -581,13 +584,16 @@
           .transition()
           .attr('transform', 'translate(' + x_scale(loc.x) + ',' + y_scale(loc.y) + ')');
       });
-
       // Remove unneeded armies
       d3.selectAll('.army')
         .filter(function () {
           return current_armies.indexOf(this.id) < 0;
         })
         .remove();
+    }
+
+    function finish_step () {
+      console.log('done lol');
     }
 
     /**************************************************************************/
@@ -638,6 +644,7 @@
       goto_step();
     })
     d3.select('#slider').on('input', function () {
+      d3.select('#slider-value').text(this.value);
       IS_PLAYING = false;
       current_step = this.value;
       goto_step();
@@ -645,8 +652,8 @@
 
     var timeline= d3.select("#timeline")
                     .append("svg")
-                    .attr("width", 175)
-                    .attr("height", 725)
+                    .attr("width",200)
+                    .attr("height",725)
                     .style("border", "none");
 
     var side = d3.select("#side")
@@ -721,11 +728,11 @@
 
       Object.keys(event_id_mapper).reverse().forEach(function (id,i){
         timeline.append("text")
-        .attr("x", 12)
-        .attr("y", list_yScale(i))
-        .text(event_id_mapper[id].name)
-        .style("font-size", 12)
-        .style("fill","black");
+          .attr("x", 12)
+          .attr("y", list_yScale(i))
+          .text(event_id_mapper[id].name)
+          .style("font-size", 14)
+          .style("fill","black");
 
         // this is the sword of steel
         // timeline.append('image')
@@ -794,7 +801,6 @@
       d3.select("#side").selectAll("text").remove();
       d3.select("#side").selectAll("image").remove();
 
-      console.log(d);
       var defender_outcome="";
       if(d.attacker_outcome=="win"){
             defender_outcome= "loss";
@@ -804,11 +810,13 @@
       }
       addText(d.name, 250,30,36);
       addText(d.location + ", " + d.year, 250,60,20);
+      addText("Attacker", 100, 90,20);
+      addText("Defender", 400, 90,20);
       addText("Affiliation",250, 450, 20);
       addText(d.attacker_king, 100, 450, 16);
       addText(d.defender_king, 400, 450, 16);
       addText("Commander Name",250, 500, 20);
-      addText(d.attack_commander, 100, 500, 16);
+      addText(d.attacker_commander, 100, 500, 16);
       addText(d.defender_commander, 400, 500, 16);
       addText("Army Size", 250, 550, 20);
       addText(d.attacker_size, 100, 550, 16);
@@ -847,7 +855,10 @@
         .attr("opacity", 0.200);
 
     // prompt to select a
-    addText("Select a Battle", 250, 30, 36);
+    addText("Instructions",250,30,36);
+    addText("1. Click a battle to view it's location on map and the battle stats",250,50,16);
+    addText("2. Press play and pause to view the overall War progression",250,70,16);
+    addText("3. Select banners along the top to view specific family battles",250,90,16);
       
   });
   </script>
