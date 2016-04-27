@@ -266,12 +266,14 @@
         .attr('width', width)
         .attr('height', height);
 
+    var defs = svg.append('defs');
+
     var g = svg.append('g');
     var zoom_behavior = d3.behavior.zoom()
       .scaleExtent([1, 4])
       .on('zoom', zoom_func);
 
-    var swords = (new Array(10)).fill(0);
+    var swords = [];
 
     d3.xml('westeros_test.svg', 'image/svg+xml', function (err, xml) {
       if (err) throw err;
@@ -279,21 +281,26 @@
 
       g.call(zoom_behavior);
       g.node().appendChild(importedNode);
+      g = g.append('g');
 
       // Create the battle icons
       d3.xml('swords.svg', 'image/svg+xml', function (err, xml) {
         if (err) throw err;
         var importedNode = document.importNode(xml.documentElement, true);
 
-        swords = swords.map(function () {
-          var new_s = g.append('g');
-          new_s.append('g')
-            .attr('transform', 'translate(40, 40) scale(0.1) rotate(180)')
-            .node()
-            .appendChild(importedNode);
-          new_s.attr('transform', 'translate(0, 0)');
-          return new_s;
-        });
+        defs
+          .node()
+          .appendChild(importedNode);
+        defs.select('svg').attr('id', 'swords');
+
+        for (var i = 0; i < 9; i++) {
+          swords.push(g.append('g'));
+          swords[i].append('g')
+            .attr('transform', 'translate(20, 20) scale(0.05) rotate(180)')
+            .append('use')
+            .attr('xlink:href', '#swords');
+          // swords[i].attr('transform', 'translate(-100, 100)');
+        }
       });
 
       // Setup x,y scales
@@ -481,12 +488,15 @@
 
       // Battle icon
       var current_battles = battle_data.filter(function (b) {
-        return b.time_data == current_step;
+        return b.time_data == current_step && b.time_data !== '';
       });
 
+      // Reset swords
+      swords.forEach(function (s) {
+        s.attr('transform', 'translate(-100, -100)');
+      });
       current_battles.forEach(function (b, i) {
         var loc = location_mapper[b.location];
-        console.log(i);
         swords[i].attr('transform', 'translate(' + x_scale(loc.x) + ',' + y_scale(loc.y) + ')');
       });
 
@@ -513,8 +523,6 @@
       var ending_now = route_data.filter(function (d) {
         return d.end_time == current_step;
       });
-
-      //console.log(starts_now, moving_now, ending_now);
 
       // Armies that start now should just appear and stay at their start location
       starts_now.forEach(function (m) {
@@ -646,18 +654,6 @@
      */
     function single_word (str) {
       return str.replace(' ', '').trim();
-    }
-
-    /**
-     * Generates a random color from a given seed
-     */
-    function random_color() {
-      var letters = '0123456789ABCDEF'.split('');
-      var color = '#';
-      for (var i = 0; i < 6; i++ ) {
-          color += letters[Math.floor(Math.random() * 16)];
-      }
-      return color;
     }
 
     /**************************************************************************/
