@@ -3,6 +3,14 @@
   <title>War of the Five Kings</title>
   <script src="http://d3js.org/d3.v3.min.js"></script>
   <style>
+  .body {
+    background-position: left -600px;
+  }
+  .wrapper{
+    
+    height: 100%;
+    width: 100%;
+  }
   .army {
     stroke: #000;
     stroke-width: 2px;
@@ -34,15 +42,12 @@
     width: 400px;
   }
   .button {
-    background-color: #4CAF50; 
+    height: 36;
+    width: auto;
     border: none;
-    color: white;
-    
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    border-radius: 12px;
-    font-size: 12px;
 }
   #banner-container {
     padding-top: 8px;
@@ -170,9 +175,10 @@
   
   </style>
 </head>
-<body>
+<body background = "images/wallpaper.png">
+  <div class="wrapper">
   <div class="header" id="logo"></div>
-  <div class="section" id="banner-container">
+  <!-- <div class="section" id="banner-container">
     <div id="lannister-banner" class="banner">
       <div class="banner-label">Lannister</div>
       <img src="images/lannister-emblem.png"/>
@@ -193,21 +199,22 @@
       <div class="banner-label">Renly</div>
       <img src="images/renly-emblem.png"/>
     </div>
-  </div>
+  </div> -->
   <div class="section map" id="map"></div>
   <div class="section middle" id="timeline">
     <div id="player">
-      <button class="button" id="play">Play</button>
-      <button class= "button" id="pause">Pause</button>
+      <img class="button" id="play" src="images/play.png"></img>
+      <img class= "button" id="pause" src="images/pause.png"></img>
+      <img class= "button" id="reset" src="images/reset.png"></img>
       <img id="spear_slider" src="images/spear.png"/>
       <input type="range" id="time-select" min="0" max="20" step="1" value="0" />
-      <span id="slider-value"></span>
+<!--       <span id="slider-value"></span> -->
     </div>
   </div>
   <div class="section side" id="side"></div>
-
+</div>
   <script>
-    var STEP_DURATION = 1500, // Duration of a single time step
+    var STEP_DURATION = 4000, // Duration of a single time step
         LAST_STEP;            // Max # of frames
 
     var IS_PLAYING = false,   // true if the animation is running
@@ -228,45 +235,42 @@
                   .append('svg')
                   .attr('width', 1400)
                   .attr('height', 150);
-
+    
     banner.append('image')
         .attr('xlink:href',"images/Game_of_Thrones_logo.png")
         .attr('height', 100)
         .attr('width', 600)
-        .attr('x', 400)
+        .attr('x', 300)
         .attr('y', 0);
 
-    banner.append('image')
-        .attr('xlink:href',"images/baratheon-emblem.png")
-        .attr('height', 120)
+    
+    function addEmblem(x,url){
+        banner.append('image')
+        .attr('xlink:href',url)
+        .attr('height', 110)
         .attr('width', 100)
-        .attr('x', 50)
-        .attr('y', 0);
+        .attr('x', x)
+        .attr('y', 10);
+    }
+    banner.append('line')
+          .attr("x1",0)
+          .attr("y1",10)
+          .attr("x2",1500)
+          .attr("y2",10)
+          .style("stroke-width", "2")
+          .style("stroke", "black"); 
 
-    banner.append('image')
-        .attr('xlink:href',"images/Greyjoy-emblem.png")
-        .attr('height', 120)
-        .attr('width', 100)
-        .attr('x', 250)
-        .attr('y', 0);
+    addEmblem(0,"images/stannis-emblem.png");
+    addEmblem(100,"images/Greyjoy-emblem.png");
+    addEmblem(200,"images/lannister-emblem.png");
 
-    banner.append('image')
-        .attr('xlink:href',"images/lannister-emblem.png")
-        .attr('height', 120)
-        .attr('width', 100)
-        .attr('x', 1050)
-        .attr('y', 0);
-
-    banner.append('image')
-        .attr('xlink:href',"images/stark-emblem.png")
-        .attr('height', 120)
-        .attr('width', 100)
-        .attr('x', 1250)
-        .attr('y', 0);
-
+    addEmblem(900,"images/stark-emblem.png");
+    addEmblem(1000,"images/renly-emblem.png");
+    addEmblem(1100,"images/bolton-emblem.png");
+    
     banner.append("text")
         .text("War of the Five Kings")
-        .attr("x", 700)
+        .attr("x", 600)
         .attr("y", 120 )
         .style("text-anchor","middle")
         .style("font-size", 36)
@@ -686,6 +690,12 @@
     d3.select('#player #pause').on('click', function () {
       IS_PLAYING = false;
     });
+
+    d3.select('#player #reset').on('click',function (){
+      IS_PLAYING = false;
+      current_step = 0;
+      goto_step();
+    })
     d3.select('#player #time-select').on('input', function () {
       d3.select('#slider-value').text(this.value);
       IS_PLAYING = false;
@@ -724,7 +734,7 @@
     commander["Brynden Tully"]= "images/Bryden-Tully.png"
     commander["Edmure Tully"]= "images/Edmure-Tully.png"
     commander["Gregor Clegane"]= "images/Gregor-Clegane.png"
-    commander["Jaime Lannister"]= "images/Jamie-Lannister.png"
+    commander["Jaime Lannister"]= "images/Jaime-Lannister.png"
     commander["Joffery Baratheon"]= "images/Joffery-Baratheon.png"
     commander["Loras Tyrell"]= "images/Loras-Tyrell.png"
     commander["Mace Tyrell"]= "images/Mace-Tyrell.png"
@@ -782,7 +792,7 @@
 
         var list_yScale = d3.scale.linear()
         .domain([0,Object.keys(event_id_mapper).length-1])
-        .range([height-60,40]);
+        .range([height-60,20]);
 
         var list_events = [];
 
@@ -872,26 +882,26 @@
       else{
             defender_outcome="win";
       }
-      addText(d.name, 250,30,36)
-      addText(d.location+","+d.year, 250,60,20)
-      addText("Affiliation",250, 450, 20)
-      addText(d.attacker_king, 100, 450, 16)
-      addText(d.defender_king, 400, 450, 16)
-      addText("Commander Name",250, 500, 20)
-      addText(d.attack_commander, 100, 500, 16)
-      addText(d.defender_commander, 400, 500, 16)
-      addText("Army Size", 250, 550, 20)
-      addText(d.attacker_size, 100, 550, 16)
-      addText(d.defender_size, 400, 550, 16)
-      addText("Outcome", 250, 600, 20)
-      addText(d.attacker_outcome, 100, 600, 50)
-      addText(defender_outcome, 400, 600, 50)
+      addText(d.name, 250,30,36);
+      addText(d.location+","+d.year, 250,60,20);
+      addText("Affiliation",250, 450, 20);
+      addText(d.attacker_king, 100, 450, 16);
+      addText(d.defender_king, 400, 450, 16);
+      addText("Commander Name",250, 500, 20);
+      addText(d.attack_commander, 100, 500, 16);
+      addText(d.defender_commander, 400, 500, 16);
+      addText("Army Size", 250, 550, 20);
+      addText(d.attacker_size, 100, 550, 16);
+      addText(d.defender_size, 400, 550, 16);
+      addText("Outcome", 250, 600, 20);
+      addText(d.attacker_outcome, 100, 600, 50);
+      addText(defender_outcome, 400, 600, 50);
 
-      addImage(200, 150, 100, 100, "http://www.clker.com/cliparts/7/l/N/9/Q/C/black-crossed-swords-hi.png")//crossed sword
-      addImage(60, 320, 75, 75, affiliation[d.attacker_king])//attacker banner
-      addImage(360, 320, 75, 75, affiliation[d.defender_king])//defender banner
-      addImage(0, 100, 200, 200, commander[d.main_attacker])//attacker king
-      addImage(300, 100, 200, 200, commander[d.main_defender])//defender king
+      addImage(200, 150, 100, 100, "http://www.clker.com/cliparts/7/l/N/9/Q/C/black-crossed-swords-hi.png");//crossed sword
+      addImage(60, 320, 75, 75, affiliation[d.attacker_king]);//attacker banner
+      addImage(360, 320, 75, 75, affiliation[d.defender_king]);//defender banner
+      addImage(0, 100, 200, 200, commander[d.main_attacker]);//attacker king
+      addImage(300, 100, 200, 200, commander[d.main_defender]);//defender king
 
       side.append('image')
         .attr('xlink:href',"http://www.imarvintpa.com/Mapping/Overlays/Blood/Blood%20splatter%2019-sc.png")
