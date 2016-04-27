@@ -6,6 +6,10 @@
   /**
    * General styles
    */
+  @font-face {
+    font-family: 'High Tower Text';
+    src: url('hightower.ttf') format('truetype');
+  }
   * {
     outline: none;
   }
@@ -30,7 +34,7 @@
     stroke-width: 2px;
   }
   #timeline {
-    width: 175px;
+    width: 225px;
     font-family: "High Tower Text";
   }
   #side {
@@ -98,13 +102,23 @@
   <div class="header" id="logo">
     <svg id="banner" width="1200" height="150">
       <image xlink:href="images/Game_of_Thrones_logo.png" height="100" width="600" x="300" y="0" />
-      <line stroke-width="2" stroke="black" x1="0" y1="10" x2="1500" y2="10" />
-      <image xlink:href="images/stannis-emblem.png" cursor="pointer" id="stannis-emblem" height="110" width="100" x="0" y="10" />
-      <image xlink:href="images/greyjoy-emblem.png" cursor="pointer" id="greyjoy-emblem" height="110" width="100" x="100" y="10" />
-      <image xlink:href="images/lannister-emblem.png" cursor="pointer" id="lannister-emblem" height="110" width="100" x="200" y="10" />
-      <image xlink:href="images/stark-emblem.png" cursor="pointer" id="stark-emblem" height="110" width="100" x="900" y="10" />
-      <image xlink:href="images/renly-emblem.png" cursor="pointer" id="renly-emblem" height="110" width="100" x="1000" y="10" />
-      <image xlink:href="images/bolton-emblem.png" id="bolton-emblem" height="110" width="100" x="1100" y="10" />
+      <line stroke-width="2" stroke="black" x1="0" y1="10" x2="1200" y2="10" />
+
+      <image xlink:href="images/stannis-emblem.png" height="110" width="100" x="0" y="10" />
+        <text x="50" y="130" text-anchor="middle" font-size="13" fill="black"> House Baratheon</text>
+        <text x="50" y="140" text-anchor="middle" font-size="13" fill="black"> (Stannis)</text>
+      <image xlink:href="images/greyjoy-emblem.png" height="110" width="100" x="100" y="10" />
+       <text x="150" y="130" text-anchor="middle" font-size="13" fill="black">House Greyjoy</text>
+      <image xlink:href="images/lannister-emblem.png" height="110" width="100" x="200" y="10" />
+        <text x="250" y="130" text-anchor="middle" font-size="13" fill="black">House Lannister</text>
+      <image xlink:href="images/stark-emblem.png" height="110" width="100" x="900" y="10" />
+        <text x="950" y="130" text-anchor="middle" font-size="13" fill="black">House Stark</text>
+      <image xlink:href="images/renly-emblem.png" height="110" width="100" x="1000" y="10" />
+        <text x="1050" y="130" text-anchor="middle" font-size="13" fill="black">House Baratheon</text>
+        <text x="1050" y="140" text-anchor="middle" font-size="13" fill="black">(Renly)</text>
+      <image xlink:href="images/mimno-emblem.png" height="110" width="100" x="1100" y="10" />
+        <text x="1150" y="130" text-anchor="middle" font-size="13" fill="black">House Mimno(</text>
+
       <text x="600" y="120" text-anchor="middle" font-size="36" fill="black">War of the Five Kings</text>
     </svg>
   </div>
@@ -186,7 +200,7 @@
     // Setup player
     svg.append('rect')
       .attr('fill', '#fff')
-      .attr('opacity', '0.5')
+      .attr('opacity', '0.7')
       .attr('height', '84')
       .attr('width', '94')
       .attr('rx', '8')
@@ -652,9 +666,8 @@
 
     var timeline= d3.select("#timeline")
                     .append("svg")
-                    .attr("width",200)
-                    .attr("height",725)
-                    .style("border", "none");
+                    .attr("width", 225)
+                    .attr("height", 780);
 
     var side = d3.select("#side")
                 .append("svg")
@@ -717,7 +730,7 @@
 
       var list_yScale = d3.scale.linear()
         .domain([0, Object.keys(event_id_mapper).length - 1])
-        .range([height - 60, 20]);
+        .range([height, -10]);
 
       var list_events = [];
 
@@ -731,7 +744,7 @@
           .attr("x", 12)
           .attr("y", list_yScale(i))
           .text(event_id_mapper[id].name)
-          .style("font-size", 14)
+          .style("font-size", 16)
           .style("fill","black");
 
         // this is the sword of steel
