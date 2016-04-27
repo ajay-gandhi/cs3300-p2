@@ -820,7 +820,6 @@
       d3.select("#side").selectAll("text").remove();
       d3.select("#side").selectAll("image").remove();
 
-      console.log(d);
       var defender_outcome="";
       if(d.attacker_outcome=="win"){
             defender_outcome= "loss";
@@ -836,8 +835,6 @@
       addText(d.attacker_king, 100, 450, 16);
       addText(d.defender_king, 400, 450, 16);
       addText("Commander Name",250, 500, 20);
-
-      console.log(d.attack_commander+" hi\n");
       addText(d.attacker_commander, 100, 500, 16);
       addText(d.defender_commander, 400, 500, 16);
       addText("Army Size", 250, 550, 20);
