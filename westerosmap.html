@@ -764,8 +764,8 @@
       });
 
       var list_yScale = d3.scale.linear()
-        .domain([0, Object.keys(event_id_mapper).length - 1])
-        .range([height, -8]);
+                          .domain([0, Object.keys(event_id_mapper).length - 1])
+                          .range([height, -8]);
 
       var list_events = [];
 
@@ -797,11 +797,10 @@
         .append("rect")
         .attr("x", 1)
         .attr("y", function (d) {
-          var scaledY = list_yScale(list_events.length - iter - 1) - 15;
           iter++;
-          return scaledY;
+          return list_yScale(list_events.length - iter) - 15;
         })
-        .attr("height", 20)
+        .attr("height", 22)
         .attr("width", 224)
         .attr('cursor', 'pointer')
         .attr("stroke", "none")
@@ -848,7 +847,7 @@
       d3.select("#side").selectAll("image").remove();
 
       var defender_outcome = "";
-      if (d.attacker_outcome=="win") {
+      if (d.attacker_outcome == "win") {
         defender_outcome = "loss";
       } else {
         defender_outcome = "win";
@@ -865,8 +864,8 @@
       addText(d.attacker_commander, 100, 500, 16);
       addText(d.defender_commander, 400, 500, 16);
       addText("Army Size", 250, 550, 20);
-      addText(d.attacker_size, 100, 550, 16);
-      addText(d.defender_size, 400, 550, 16);
+      addText(d.attacker_size, 100, 550, 18);
+      addText(d.defender_size, 400, 550, 18);
       addText("Outcome", 250, 600, 20);
       addText(d.attacker_outcome, 100, 600, 50);
       addText(defender_outcome, 400, 600, 50);
