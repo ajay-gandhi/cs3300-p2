@@ -14,7 +14,7 @@
     outline: none;
   }
   body {
-    background: #333;
+    background: #282828;
     margin: 0;
     padding: 0;
   }
@@ -30,9 +30,9 @@
     margin: 30px auto;
     display: inline-block;
     overflow: hidden;
-    box-shadow: 0 0 10px 5px rgba(0,0,0,0.75);
-    -moz-box-shadow: 0 0 10px 5px rgba(0,0,0,0.75);
-    -webkit-box-shadow: 0 0 10px 5px rgba(0,0,0,0.75);
+    box-shadow: 0 0 10px 5px rgba(0, 0, 0, 0.85);
+    -moz-box-shadow: 0 0 10px 5px rgba(0, 0, 0, 0.85);
+    -webkit-box-shadow: 0 0 10px 5px rgba(0, 0, 0, 0.85);
   }
 
   /**
@@ -56,7 +56,7 @@
     stroke-width: 2px;
   }
   #timeline {
-    width: 225px;
+    width: 230px;
     font-family: "High Tower Text";
   }
   #side {
@@ -699,9 +699,9 @@
       goto_step();
     });
 
-    var timeline= d3.select("#timeline")
+    var timeline = d3.select("#timeline")
                     .append("svg")
-                    .attr("width", 225)
+                    .attr("width", 230)
                     .attr("height", 780);
 
     var side = d3.select("#side")
@@ -765,7 +765,7 @@
 
       var list_yScale = d3.scale.linear()
         .domain([0, Object.keys(event_id_mapper).length - 1])
-        .range([height, -10]);
+        .range([height, -8]);
 
       var list_events = [];
 
@@ -776,7 +776,7 @@
 
       Object.keys(event_id_mapper).reverse().forEach(function (id,i){
         timeline.append("text")
-          .attr("x", 12)
+          .attr("x", 2)
           .attr("y", list_yScale(i))
           .text(event_id_mapper[id].name)
           .style("font-size", 16)
@@ -795,16 +795,17 @@
       timeline.selectAll("rect")
         .data(list_events).enter()
         .append("rect")
-        .attr("x", 8)
+        .attr("x", 1)
         .attr("y", function (d) {
           var scaledY = list_yScale(list_events.length - iter - 1) - 15;
           iter++;
           return scaledY;
         })
-        .attr("height", 19)
-        .attr("width", 220)
+        .attr("height", 20)
+        .attr("width", 224)
         .attr('cursor', 'pointer')
         .attr("stroke", "none")
+        .attr("stroke-width", "2")
         .attr("fill", "transparent");
 
         // loop thorugh events to display them
@@ -828,13 +829,13 @@
         .attr('y', y);
     }
 
-    d3.select("#timeline").selectAll("rect").on("click", function(d, i) {
+    d3.select("#timeline").selectAll("rect").on("click", function (d, i) {
       // remove all text and replace
       d3.select("#side").selectAll("text").remove();
           
-      d3.select("#timeline").selectAll("rect").style("fill", "transparent");
+      d3.select("#timeline").selectAll("rect").style("stroke", "none");
 
-      d3.select(this).style("fill", "red").style("opacity", 0.3);
+      d3.select(this).style("stroke", "red").style("opacity", 0.7);
 
       IS_PLAYING = false;
       current_step = d.time_data;
@@ -843,18 +844,16 @@
       battle_highlight = d.battle_number;
       goto_step();
 
-
-
       d3.select("#side").selectAll("text").remove();
       d3.select("#side").selectAll("image").remove();
 
-      var defender_outcome="";
-      if(d.attacker_outcome=="win"){
-            defender_outcome= "loss";
+      var defender_outcome = "";
+      if (d.attacker_outcome=="win") {
+        defender_outcome = "loss";
+      } else {
+        defender_outcome = "win";
       }
-      else{
-            defender_outcome="win";
-      }
+
       addText(d.name, 250,30,36);
       addText(d.location + ", " + d.year, 250,60,20);
       addText("Attacker", 100, 90,20);
@@ -877,26 +876,27 @@
       addImage(360, 320, 75, 75, affiliation[d.defender_king]);//defender banner
       addImage(0, 100, 200, 200, commander[d.main_attacker]);//attacker king
       addImage(300, 100, 200, 200, commander[d.main_defender]);//defender king
-      });
+    });
 
   // Before clicking on a battle the initial battle screen
     // crossed swords
     addImage(200, 150, 100, 100, "http://www.clker.com/cliparts/7/l/N/9/Q/C/black-crossed-swords-hi.png")
+
     // blood overlay
     side.append('image')
-        .attr('xlink:href',"http://www.imarvintpa.com/Mapping/Overlays/Blood/Blood%20splatter%2019-sc.png")
-        .attr('height', 500)
-        .attr('width', 500)
-        .attr('x', 0)
-        .attr('y', 220)
-        .attr("opacity", 0.4);
+      .attr('xlink:href',"http://www.imarvintpa.com/Mapping/Overlays/Blood/Blood%20splatter%2019-sc.png")
+      .attr('height', 500)
+      .attr('width', 500)
+      .attr('x', 0)
+      .attr('y', 220)
+      .attr("opacity", 0.4);
 
     // prompt to select a
-    addText("Instructions",250,30,36);
-    addText("1. Click a battle to view it's location on map and the battle stats",250,50,16);
-    addText("2. Press play and pause to view the overall War progression",250,70,16);
-    addText("3. Select banners along the top to view specific family battles",250,90,16);
-      
+    addText("Instructions", 250, 30, 36);
+    addText("1. Click a battle to view it's location on the map and the battle stats", 250, 60, 18);
+    addText("2. Press play or pause to view the overall progression", 250, 80, 18);
+    addText("3. Select banners along the top to filter specific families", 250, 100, 18);
+
   });
   </script>
 </body>
