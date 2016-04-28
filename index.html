@@ -145,7 +145,7 @@
           <image xlink:href="assets/renly-emblem.png" class="banner" id="renly-emblem" cursor="pointer" height="110" width="100" x="1000" y="10" />
             <text x="1050" y="130" text-anchor="middle" font-size="13" fill="black">House Baratheon</text>
             <text x="1050" y="140" text-anchor="middle" font-size="13" fill="black">(Renly)</text>
-          <image xlink:href="assets/mimno-emblem.png" height="110" width="100" x="1100" y="10" id= "mimno" onmouseover="changeImage()" onmouseout="removeImage()" />
+          <image xlink:href="assets/mimno-emblem.png" id="mimno-emblem" height="110" width="100" x="1100" y="10" />
             <text x="1150" y="130" text-anchor="middle" font-size="13" fill="black">House Mimno</text>
 
           <text x="600" y="120" text-anchor="middle" font-size="36" fill="black">War of the Five Kings</text>
@@ -957,18 +957,19 @@
       .attr('y', y);
   }
 
-  function changeImage() {
+  d3.select('#mimno-emblem')
+    .on('mouseenter', function () {
       side.append('image')
-      .attr("id", "mimno-king")
-      .attr('xlink:href',"assets/King-Mimno.png")
-      .attr('height', 500)
-      .attr('width', 500)
-      .attr('x', 0)
-      .attr('y', 0);
-  }
-  function removeImage(){
-    d3.select("#mimno-king").remove();
-  }
+        .attr("id", "mimno-king")
+        .attr('xlink:href',"assets/King-Mimno.png")
+        .attr('height', 500)
+        .attr('width', 500)
+        .attr('x', 0)
+        .attr('y', 45);
+    })
+    .on('mouseleave', function () {
+      d3.select("#mimno-king").remove();
+    });
 
   function display_instructions () {
     side.selectAll('text').remove();
