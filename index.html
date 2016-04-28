@@ -34,34 +34,22 @@
     -moz-box-shadow: 0 0 10px 5px rgba(0, 0, 0, 0.85);
     -webkit-box-shadow: 0 0 10px 5px rgba(0, 0, 0, 0.85);
   }
-
-  /**
-   * Sections
-   */
-  .header { 
-    height: 150px; 
-    margin-bottom: 30px;
-    font-family: "High Tower Text";
-  }
   .section {
     float: left;
     height: 770px;
     margin: 5px;
   }
-  #map {
-    width: 400px;
-  }
-  .army {
-    stroke: #000;
-    stroke-width: 2px;
-  }
-  #timeline {
-    width: 230px;
+
+  /**
+   * Sections
+   */
+  #logo { 
+    height: 150px; 
+    margin-bottom: 30px;
     font-family: "High Tower Text";
   }
-  #side {
-    width: 490px;
-    font-family: "High Tower Text";
+  .hidden-family {
+    opacity: 0.5;
   }
 
   #slider-wrapper {
@@ -76,12 +64,29 @@
     height: 20px;
     width: 720px;
   }
-
   #spear_slider {
     position: absolute;
     top: -45px;
     left: -10px;
     height: 900px;
+  }
+
+  #map {
+    width: 400px;
+  }
+  .army {
+    stroke: #000;
+    stroke-width: 2px;
+  }
+
+  #timeline {
+    width: 230px;
+    font-family: "High Tower Text";
+  }
+
+  #side {
+    width: 490px;
+    font-family: "High Tower Text";
   }
 
   /**
@@ -123,7 +128,7 @@
 <body>
   <div id="main-container">
     <div id="main-wrapper">
-      <div class="header" id="logo">
+      <div id="logo">
         <svg id="banner" width="1200" height="150">
           <image xlink:href="assets/Game_of_Thrones_logo.png" height="100" width="600" x="300" y="0" />
           <line stroke-width="2" stroke="black" x1="0" y1="10" x2="1200" y2="10" />
@@ -202,10 +207,7 @@
         .style('opacity', hidden_families[family] ? '0' : army_opacity);
 
       // Toggle opacity of image
-      var had_class = d3.select(this).select('img').classed('hidden-family');
-      d3.select(this)
-        .select('img')
-        .classed('hidden-family', !had_class);
+      d3.select(this).classed('hidden-family', hidden_families[family]);
     });
 
     /****************************** Westeros Map ******************************/
