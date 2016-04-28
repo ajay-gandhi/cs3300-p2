@@ -8,7 +8,7 @@
    */
   @font-face {
     font-family: 'High Tower Text';
-    src: url('hightower.ttf') format('truetype');
+    src: url('assets/hightower.ttf') format('truetype');
   }
   * {
     outline: none;
@@ -22,7 +22,7 @@
     text-align: center;
   }
   #main-wrapper {
-    background-image: url("images/wallpaper.png");
+    background-image: url("assets/wallpaper.png");
     background-repeat: no-repeat;
     padding: 25px 30px 20px 30px;
     width: 1200px;
@@ -99,7 +99,7 @@
     height: 40px;
     width: 40px;
     border-radius: 7px;
-    background-image: url("images/slider.png");
+    background-image: url("assets/slider.png");
     background-size: 40px 40px;
     background-repeat: no-repeat;
     cursor: pointer;
@@ -113,7 +113,7 @@
     height: 40px;
     width: 40px;
     border-radius: 7px;
-    background-image: url("images/slider.png");
+    background-image: url("assets/slider.png");
     background-size: 40px 40px;
     background-repeat: no-repeat;
     cursor: pointer;
@@ -125,29 +125,29 @@
     <div id="main-wrapper">
       <div class="header" id="logo">
         <svg id="banner" width="1200" height="150">
-          <image xlink:href="images/Game_of_Thrones_logo.png" height="100" width="600" x="300" y="0" />
+          <image xlink:href="assets/Game_of_Thrones_logo.png" height="100" width="600" x="300" y="0" />
           <line stroke-width="2" stroke="black" x1="0" y1="10" x2="1200" y2="10" />
 
-          <image xlink:href="images/stannis-emblem.png" class="banner" id="stannis-emblem" cursor="pointer" height="110" width="100" x="0" y="10" />
+          <image xlink:href="assets/stannis-emblem.png" class="banner" id="stannis-emblem" cursor="pointer" height="110" width="100" x="0" y="10" />
             <text x="50" y="130" text-anchor="middle" font-size="13" fill="black"> House Baratheon</text>
             <text x="50" y="140" text-anchor="middle" font-size="13" fill="black"> (Stannis)</text>
-          <image xlink:href="images/greyjoy-emblem.png" class="banner" id="greyjoy-emblem" cursor="pointer" height="110" width="100" x="100" y="10" />
+          <image xlink:href="assets/greyjoy-emblem.png" class="banner" id="greyjoy-emblem" cursor="pointer" height="110" width="100" x="100" y="10" />
            <text x="150" y="130" text-anchor="middle" font-size="13" fill="black">House Greyjoy</text>
-          <image xlink:href="images/lannister-emblem.png" class="banner" id="lannister-emblem" cursor="pointer" height="110" width="100" x="200" y="10" />
+          <image xlink:href="assets/lannister-emblem.png" class="banner" id="lannister-emblem" cursor="pointer" height="110" width="100" x="200" y="10" />
             <text x="250" y="130" text-anchor="middle" font-size="13" fill="black">House Lannister</text>
-          <image xlink:href="images/stark-emblem.png" class="banner" id="stark-emblem" cursor="pointer" height="110" width="100" x="900" y="10" />
+          <image xlink:href="assets/stark-emblem.png" class="banner" id="stark-emblem" cursor="pointer" height="110" width="100" x="900" y="10" />
             <text x="950" y="130" text-anchor="middle" font-size="13" fill="black">House Stark</text>
-          <image xlink:href="images/renly-emblem.png" class="banner" id="renly-emblem" cursor="pointer" height="110" width="100" x="1000" y="10" />
+          <image xlink:href="assets/renly-emblem.png" class="banner" id="renly-emblem" cursor="pointer" height="110" width="100" x="1000" y="10" />
             <text x="1050" y="130" text-anchor="middle" font-size="13" fill="black">House Baratheon</text>
             <text x="1050" y="140" text-anchor="middle" font-size="13" fill="black">(Renly)</text>
-          <image xlink:href="images/mimno-emblem.png" height="110" width="100" x="1100" y="10" />
+          <image xlink:href="assets/mimno-emblem.png" height="110" width="100" x="1100" y="10" />
             <text x="1150" y="130" text-anchor="middle" font-size="13" fill="black">House Mimno</text>
 
           <text x="600" y="120" text-anchor="middle" font-size="36" fill="black">War of the Five Kings</text>
         </svg>
       </div>
       <div class="section" id="slider-wrapper">
-        <img id="spear_slider" src="images/spear.png"/>
+        <img id="spear_slider" src="assets/spear.png"/>
         <input type="range" id="slider" min="0" max="20" step="1" value="0" />
       </div>
       <div class="section" id="map"></div>
@@ -234,7 +234,7 @@
       .attr('y', 12);
 
     svg.append('image')
-      .attr('xlink:href', 'images/play1.png')
+      .attr('xlink:href', 'assets/play1.png')
       .attr('id', 'play')
       .attr('height', 25)
       .attr('width', 25)
@@ -243,7 +243,7 @@
       .attr('cursor', 'pointer');
 
     svg.append('image')
-      .attr('xlink:href', 'images/pause1.png')
+      .attr('xlink:href', 'assets/pause1.png')
       .attr('id', 'pause')
       .attr('height', 25)
       .attr('width', 25)
@@ -252,7 +252,7 @@
       .attr('cursor', 'pointer');
 
     svg.append('image')
-      .attr('xlink:href', 'images/reset1.png')
+      .attr('xlink:href', 'assets/reset1.png')
       .attr('id', 'reset')
       .attr('height', 37)
       .attr('width', 37)
@@ -273,7 +273,7 @@
     var swords = [];
 
     // Setup battle icons
-    d3.xml('westeros_test.svg', 'image/svg+xml', function (err, xml) {
+    d3.xml('svg/westeros_map.svg', 'image/svg+xml', function (err, xml) {
       if (err) throw err;
       var importedNode = document.importNode(xml.documentElement, true);
 
@@ -281,7 +281,7 @@
       g.node().appendChild(importedNode);
 
       // Create the battle icons
-      d3.xml('swords.svg', 'image/svg+xml', function (err, xml) {
+      d3.xml('svg/swords.svg', 'image/svg+xml', function (err, xml) {
         if (err) throw err;
         var importedNode = document.importNode(xml.documentElement, true);
 
@@ -310,7 +310,7 @@
         .domain([0, 1390])
         .range([0, bbox.height]);
 
-      d3.csv('battles.csv', function (err, battles) {
+      d3.csv('data/battles.csv', function (err, battles) {
         if (err) throw err;
 
         // Map appropriate data to numbers
@@ -331,7 +331,7 @@
           }
         });
 
-        d3.csv('route.csv', function (err, routes) {
+        d3.csv('data/route.csv', function (err, routes) {
           if (err) throw err;
           // Map appropriate data to numbers
           route_data = routes.map(function (t) {
@@ -714,38 +714,38 @@
     var event_id_mapper = {};
 
     var affiliation = {
-      "Joffery Baratheon": "images/Lannister-Emblem.png",
-      "Balon Greyjoy":     "images/Greyjoy-Emblem.png",
-      "Robb Stark":        "images/stark-emblem.png",
-      "Renly Baratheon":   "images/renly-emblem.png",
-      "Stannis Baratheon": "images/stannis-emblem.png"
+      "Joffery Baratheon": "assets/Lannister-Emblem.png",
+      "Balon Greyjoy":     "assets/Greyjoy-Emblem.png",
+      "Robb Stark":        "assets/stark-emblem.png",
+      "Renly Baratheon":   "assets/renly-emblem.png",
+      "Stannis Baratheon": "assets/stannis-emblem.png"
     }
 
     var commander = {
-      "Asha Greyjoy":      "images/Asha-Greyjoy.png",
-      "Balon Greyjoy":     "images/Balon-Greyjoy.png",
-      "Beric Dondarrion":  "images/Beric-Dondarrion.png",
-      "Bran Stark":        "images/Bran-Stark.png",
-      "Brynden Tully":     "images/Bryden-Tully.png",
-      "Edmure Tully":      "images/Edmure-Tully.png",
-      "Gregor Clegane":    "images/Gregor-Clegane.png",
-      "Jaime Lannister":   "images/Jaime-Lannister.png",
-      "Joffery Baratheon": "images/Joffery-Baratheon.png",
-      "Loras Tyrell":      "images/Loras-Tyrell.png",
-      "Mace Tyrell":       "images/Mace-Tyrell.png",
-      "Mance Rayder":      "images/Mance-Rayder.png",
-      "Ramsey Bolton":     "images/Ramsey-Bolton.png",
-      "Renly Baratheon":   "images/Renly-Baratheon.png",
-      "Robb Stark":        "images/Robb-Stark.png",
-      "Roose Bolton":      "images/Roose-Bolton.png",
-      "Stannis Baratheon": "images/Stannis-Baratheon.png",
-      "Theon Greyjoy":     "images/Theon-Greyjoy.png",
-      "Tyrion Lannister":  "images/Tyrion-Lannister.png",
-      "Tywin Lannister":   "images/Tywin-Lannister.png",
-      "Walder Frey":       "images/Walder-Frey.png"
+      "Asha Greyjoy":      "assets/Asha-Greyjoy.png",
+      "Balon Greyjoy":     "assets/Balon-Greyjoy.png",
+      "Beric Dondarrion":  "assets/Beric-Dondarrion.png",
+      "Bran Stark":        "assets/Bran-Stark.png",
+      "Brynden Tully":     "assets/Bryden-Tully.png",
+      "Edmure Tully":      "assets/Edmure-Tully.png",
+      "Gregor Clegane":    "assets/Gregor-Clegane.png",
+      "Jaime Lannister":   "assets/Jaime-Lannister.png",
+      "Joffery Baratheon": "assets/Joffery-Baratheon.png",
+      "Loras Tyrell":      "assets/Loras-Tyrell.png",
+      "Mace Tyrell":       "assets/Mace-Tyrell.png",
+      "Mance Rayder":      "assets/Mance-Rayder.png",
+      "Ramsey Bolton":     "assets/Ramsey-Bolton.png",
+      "Renly Baratheon":   "assets/Renly-Baratheon.png",
+      "Robb Stark":        "assets/Robb-Stark.png",
+      "Roose Bolton":      "assets/Roose-Bolton.png",
+      "Stannis Baratheon": "assets/Stannis-Baratheon.png",
+      "Theon Greyjoy":     "assets/Theon-Greyjoy.png",
+      "Tyrion Lannister":  "assets/Tyrion-Lannister.png",
+      "Tywin Lannister":   "assets/Tywin-Lannister.png",
+      "Walder Frey":       "assets/Walder-Frey.png"
     }
 
-    d3.csv('battles.csv', function (err, battles) {
+    d3.csv('data/battles.csv', function (err, battles) {
       // list out all events
       // Map appropriate data to numbers
       var event_info = battles.map(function (b) {
