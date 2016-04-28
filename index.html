@@ -837,8 +837,9 @@
         defender_outcome = "win";
       }
 
-      addText(d.name, 250,30,36);
-      addText(d.location + ", " + d.year, 250,60,20);
+      addText(d.name, 250,25,36);
+      addText(d.location + ", "+d.region+", " + d.year, 250,50,20);
+      addText(d.battle_type, 250, 70, 16);
       addText("Attacker", 100, 90,20);
       addText("Defender", 400, 90,20);
       addText("Affiliation",250, 450, 20);
@@ -853,6 +854,7 @@
       addText("Outcome", 250, 600, 20);
       addText(d.attacker_outcome, 100, 600, 50);
       addText(defender_outcome, 400, 600, 50);
+      
 
       addImage(60, 320, 75, 75, affiliation[d.attacker_king]);//attacker banner
       addImage(360, 320, 75, 75, affiliation[d.defender_king]);//defender banner
@@ -868,7 +870,7 @@
       .attr('height', 100)
       .attr('width', 100)
       .attr('x', 200)
-      .attr('y', 150);
+      .attr('y', 155);
 
     // blood overlay
     side.append('image')
@@ -905,10 +907,13 @@
   function display_instructions () {
     side.selectAll('text').remove();
     side.selectAll('image').filter(function () { return !d3.select(this).classed('permanent'); }).remove();
-    addText('Instructions', 250, 30, 36);
-    addText('1. Click a battle to view it's location on the map and the battle stats', 250, 60, 18);
-    addText('2. Press play or pause to view the overall progression', 250, 85, 18);
-    addText('3. Select banners along the top to filter specific families', 250, 110, 18);
+
+    addText("Instructions", 250, 30, 36);
+    addText("1. Click a battle to view it's location on the map and the battle stats", 250, 55, 18);
+    addText("2. Press play or pause to view the overall progression of the war", 250, 75, 18);
+    addText("3. Select banners along the top to filter specific families", 250, 95, 18);
+    addText("4. Explore the map! Zoom in and take a look", 250, 115,18)
+    addText("5. Click reset to go back to step 1, and see these instructions again", 250, 135,18);
   }
   </script>
 </body>
