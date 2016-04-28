@@ -79,7 +79,7 @@
 
   #spear_slider {
     position: absolute;
-    top: -55px;
+    top: -45px;
     left: -10px;
     height: 900px;
   }
@@ -230,16 +230,16 @@
       .attr('width', 74)
       .attr('rx', 8)
       .attr('ry', 8)
-      .attr('x', 8)
-      .attr('y', 8);
+      .attr('x', 12)
+      .attr('y', 12);
 
     svg.append('image')
       .attr('xlink:href', 'images/play1.png')
       .attr('id', 'play')
       .attr('height', 25)
       .attr('width', 25)
-      .attr('x', 15)
-      .attr('y', 16)
+      .attr('x', 19)
+      .attr('y', 20)
       .attr('cursor', 'pointer');
 
     svg.append('image')
@@ -247,8 +247,8 @@
       .attr('id', 'pause')
       .attr('height', 25)
       .attr('width', 25)
-      .attr('x', 15)
-      .attr('y', 53)
+      .attr('x', 19)
+      .attr('y', 57)
       .attr('cursor', 'pointer');
 
     svg.append('image')
@@ -256,14 +256,14 @@
       .attr('id', 'reset')
       .attr('height', 37)
       .attr('width', 37)
-      .attr('x', 42)
-      .attr('y', 46)
+      .attr('x', 46)
+      .attr('y', 50)
       .attr('cursor', 'pointer');
 
     svg.append('text')
       .attr('id', 'slider-value')
-      .attr('x', 70)
-      .attr('y', 36)
+      .attr('x', 74)
+      .attr('y', 40)
       .attr('text-anchor', 'end')
       .text(0)
       .attr('font-family', 'Helvetica')
@@ -691,7 +691,8 @@
       IS_PLAYING = false;
       current_step = 0;
       goto_step();
-    })
+      display_instructions();
+    });
     d3.select('#slider').on('input', function () {
       d3.select('#slider-value').text(this.value);
       IS_PLAYING = false;
@@ -807,31 +808,17 @@
         .attr("stroke-width", "2")
         .attr("fill", "transparent");
 
-        // loop thorugh events to display them
-        
-    function addText (text, x, y, size) {
-      side.append("text")
-        .text(text)
-        .attr("x", x)
-        .attr("y", y)
-        .style("text-anchor","middle")
-        .style("font-size", size)
-        .style("fill", "black");
-    }
-
-    function addImage(x, y, height, width, url){
-      side.append('image')
-        .attr('xlink:href',url)
-        .attr('height', height)
-        .attr('width', width)
-        .attr('x', x)
-        .attr('y', y);
-    }
-
+    // loop thorugh events to display them
     d3.select("#timeline").selectAll("rect").on("click", function (d, i) {
       // remove all text and replace
       d3.select("#side").selectAll("text").remove();
-          
+      d3.select("#side")
+        .selectAll("image")
+        .filter(function () {
+          return !d3.select(this).classed('permanent');
+        })
+        .remove();
+
       d3.select("#timeline").selectAll("rect").style("stroke", "none");
 
       d3.select(this).style("stroke", "red").style("opacity", 0.7);
@@ -842,9 +829,6 @@
       d3.select('#slider')[0][0].value = d.time_data;
       battle_highlight = d.battle_number;
       goto_step();
-
-      d3.select("#side").selectAll("text").remove();
-      d3.select("#side").selectAll("image").remove();
 
       var defender_outcome = "";
       if (d.attacker_outcome == "win") {
@@ -870,33 +854,62 @@
       addText(d.attacker_outcome, 100, 600, 50);
       addText(defender_outcome, 400, 600, 50);
 
-      addImage(200, 150, 100, 100, "http://www.clker.com/cliparts/7/l/N/9/Q/C/black-crossed-swords-hi.png");//crossed sword
       addImage(60, 320, 75, 75, affiliation[d.attacker_king]);//attacker banner
       addImage(360, 320, 75, 75, affiliation[d.defender_king]);//defender banner
       addImage(0, 100, 200, 200, commander[d.main_attacker]);//attacker king
       addImage(300, 100, 200, 200, commander[d.main_defender]);//defender king
     });
 
-  // Before clicking on a battle the initial battle screen
+    // Before clicking on a battle the initial battle screen
     // crossed swords
-    addImage(200, 150, 100, 100, "http://www.clker.com/cliparts/7/l/N/9/Q/C/black-crossed-swords-hi.png")
+    side.append('image')
+      .attr('xlink:href',"http://www.clker.com/cliparts/7/l/N/9/Q/C/black-crossed-swords-hi.png")
+      .attr('class', 'permanent')
+      .attr('height', 100)
+      .attr('width', 100)
+      .attr('x', 200)
+      .attr('y', 150);
 
     // blood overlay
     side.append('image')
       .attr('xlink:href',"http://www.imarvintpa.com/Mapping/Overlays/Blood/Blood%20splatter%2019-sc.png")
+      .attr('class', 'permanent')
       .attr('height', 500)
       .attr('width', 500)
       .attr('x', 0)
       .attr('y', 220)
       .attr("opacity", 0.4);
 
-    // prompt to select a
+    display_instructions();
+  });
+
+  function addText (text, x, y, size) {
+    side.append("text")
+      .text(text)
+      .attr("x", x)
+      .attr("y", y)
+      .style("text-anchor", "middle")
+      .style("font-size", size)
+      .style("fill", "black");
+  }
+
+  function addImage (x, y, height, width, url) {
+    side.append('image')
+      .attr('xlink:href',url)
+      .attr('height', height)
+      .attr('width', width)
+      .attr('x', x)
+      .attr('y', y);
+  }
+
+  function display_instructions () {
+    side.selectAll('text').remove();
+    side.selectAll('image').filter(function () { return !d3.select(this).classed('permanent'); }).remove();
     addText("Instructions", 250, 30, 36);
     addText("1. Click a battle to view it's location on the map and the battle stats", 250, 60, 18);
     addText("2. Press play or pause to view the overall progression", 250, 85, 18);
     addText("3. Select banners along the top to filter specific families", 250, 110, 18);
-
-  });
+  }
   </script>
 </body>
 </html>
