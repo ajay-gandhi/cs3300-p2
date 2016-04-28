@@ -315,9 +315,9 @@
 
         // Map appropriate data to numbers
         battle_data = battles.map(function (b) {
-          b.y_coord       = Number(b.y_coord);
-          b.x_coord       = Number(b.x_coord);
-          b.location      = b.location.trim();
+          b.y_coord  = Number(b.y_coord);
+          b.x_coord  = Number(b.x_coord);
+          b.location = b.location.trim();
           return b;
         });
 
@@ -770,11 +770,11 @@
       var list_events = [];
 
       // accumulate a list of events
-      Object.keys(event_id_mapper).forEach(function (id,i){
+      Object.keys(event_id_mapper).forEach(function (id, i) {
           list_events.push(event_id_mapper[id]);
       });
 
-      Object.keys(event_id_mapper).reverse().forEach(function (id,i){
+      Object.keys(event_id_mapper).reverse().forEach(function (id, i) {
         timeline.append("text")
           .attr("x", 2)
           .attr("y", list_yScale(i))
@@ -793,7 +793,8 @@
 
       var iter = 0;
       timeline.selectAll("rect")
-        .data(list_events).enter()
+        .data(list_events)
+        .enter()
         .append("rect")
         .attr("x", 1)
         .attr("y", function (d) {
@@ -830,7 +831,7 @@
       goto_step();
 
       var defender_outcome = "";
-      if (d.attacker_outcome == "win") {
+      if (d.attacker_outcome === "win") {
         defender_outcome = "loss";
       } else {
         defender_outcome = "win";
@@ -877,19 +878,19 @@
       .attr('width', 500)
       .attr('x', 0)
       .attr('y', 220)
-      .attr("opacity", 0.4);
+      .attr('opacity', 0.4);
 
     display_instructions();
   });
 
   function addText (text, x, y, size) {
-    side.append("text")
+    side.append('text')
       .text(text)
-      .attr("x", x)
-      .attr("y", y)
-      .style("text-anchor", "middle")
-      .style("font-size", size)
-      .style("fill", "black");
+      .attr('x', x)
+      .attr('y', y)
+      .style('text-anchor', 'middle')
+      .style('font-size', size)
+      .style('fill', 'black');
   }
 
   function addImage (x, y, height, width, url) {
@@ -904,10 +905,10 @@
   function display_instructions () {
     side.selectAll('text').remove();
     side.selectAll('image').filter(function () { return !d3.select(this).classed('permanent'); }).remove();
-    addText("Instructions", 250, 30, 36);
-    addText("1. Click a battle to view it's location on the map and the battle stats", 250, 60, 18);
-    addText("2. Press play or pause to view the overall progression", 250, 85, 18);
-    addText("3. Select banners along the top to filter specific families", 250, 110, 18);
+    addText('Instructions', 250, 30, 36);
+    addText('1. Click a battle to view it's location on the map and the battle stats', 250, 60, 18);
+    addText('2. Press play or pause to view the overall progression', 250, 85, 18);
+    addText('3. Select banners along the top to filter specific families', 250, 110, 18);
   }
   </script>
 </body>
