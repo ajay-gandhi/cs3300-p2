@@ -14,8 +14,30 @@
     outline: none;
   }
   body {
-    background-image: url("images/wallpaper.png");
+    background: #333;
+    margin: 0;
+    padding: 0;
   }
+  #main-container {
+    text-align: center;
+  }
+  #main-wrapper {
+    background-image: url("images/wallpaper.png");
+    background-repeat: no-repeat;
+    padding: 25px 30px 20px 30px;
+    width: 1200px;
+    height: 970px;
+    margin: 30px auto;
+    display: inline-block;
+    overflow: hidden;
+    box-shadow: 0 0 10px 5px rgba(0,0,0,0.75);
+    -moz-box-shadow: 0 0 10px 5px rgba(0,0,0,0.75);
+    -webkit-box-shadow: 0 0 10px 5px rgba(0,0,0,0.75);
+  }
+
+  /**
+   * Sections
+   */
   .header { 
     height: 150px; 
     margin-bottom: 30px;
@@ -38,7 +60,7 @@
     font-family: "High Tower Text";
   }
   #side {
-    width: 500px;
+    width: 490px;
     font-family: "High Tower Text";
   }
 
@@ -74,11 +96,11 @@
     cursor: pointer;
   }
   input[type=range]::-webkit-slider-thumb {
-    height: 30px;
-    width: 30px;
+    height: 40px;
+    width: 40px;
     border-radius: 7px;
     background-image: url("images/slider.png");
-    background-size: 30px 29px;
+    background-size: 40px 40px;
     background-repeat: no-repeat;
     cursor: pointer;
     -webkit-appearance: none;
@@ -88,48 +110,51 @@
     cursor: pointer;
   }
   input[type=range]::-moz-range-thumb {
-    height: 30px;
-    width: 30px;
+    height: 40px;
+    width: 40px;
     border-radius: 7px;
     background-image: url("images/slider.png");
-    background-size: 30px 29px;
+    background-size: 40px 40px;
     background-repeat: no-repeat;
     cursor: pointer;
   }
   </style>
 </head>
 <body>
-  <div class="header" id="logo">
-    <svg id="banner" width="1200" height="150">
-      <image xlink:href="images/Game_of_Thrones_logo.png" height="100" width="600" x="300" y="0" />
-      <line stroke-width="2" stroke="black" x1="0" y1="10" x2="1200" y2="10" />
+  <div id="main-container">
+    <div id="main-wrapper">
+      <div class="header" id="logo">
+        <svg id="banner" width="1200" height="150">
+          <image xlink:href="images/Game_of_Thrones_logo.png" height="100" width="600" x="300" y="0" />
+          <line stroke-width="2" stroke="black" x1="0" y1="10" x2="1200" y2="10" />
 
-      <image xlink:href="images/stannis-emblem.png" height="110" width="100" x="0" y="10" />
-        <text x="50" y="130" text-anchor="middle" font-size="13" fill="black"> House Baratheon</text>
-        <text x="50" y="140" text-anchor="middle" font-size="13" fill="black"> (Stannis)</text>
-      <image xlink:href="images/greyjoy-emblem.png" height="110" width="100" x="100" y="10" />
-       <text x="150" y="130" text-anchor="middle" font-size="13" fill="black">House Greyjoy</text>
-      <image xlink:href="images/lannister-emblem.png" height="110" width="100" x="200" y="10" />
-        <text x="250" y="130" text-anchor="middle" font-size="13" fill="black">House Lannister</text>
-      <image xlink:href="images/stark-emblem.png" height="110" width="100" x="900" y="10" />
-        <text x="950" y="130" text-anchor="middle" font-size="13" fill="black">House Stark</text>
-      <image xlink:href="images/renly-emblem.png" height="110" width="100" x="1000" y="10" />
-        <text x="1050" y="130" text-anchor="middle" font-size="13" fill="black">House Baratheon</text>
-        <text x="1050" y="140" text-anchor="middle" font-size="13" fill="black">(Renly)</text>
-      <image xlink:href="images/mimno-emblem.png" height="110" width="100" x="1100" y="10" />
-        <text x="1150" y="130" text-anchor="middle" font-size="13" fill="black">House Mimno(</text>
+          <image xlink:href="images/stannis-emblem.png" class="banner" id="stannis-emblem" cursor="pointer" height="110" width="100" x="0" y="10" />
+            <text x="50" y="130" text-anchor="middle" font-size="13" fill="black"> House Baratheon</text>
+            <text x="50" y="140" text-anchor="middle" font-size="13" fill="black"> (Stannis)</text>
+          <image xlink:href="images/greyjoy-emblem.png" class="banner" id="greyjoy-emblem" cursor="pointer" height="110" width="100" x="100" y="10" />
+           <text x="150" y="130" text-anchor="middle" font-size="13" fill="black">House Greyjoy</text>
+          <image xlink:href="images/lannister-emblem.png" class="banner" id="lannister-emblem" cursor="pointer" height="110" width="100" x="200" y="10" />
+            <text x="250" y="130" text-anchor="middle" font-size="13" fill="black">House Lannister</text>
+          <image xlink:href="images/stark-emblem.png" class="banner" id="stark-emblem" cursor="pointer" height="110" width="100" x="900" y="10" />
+            <text x="950" y="130" text-anchor="middle" font-size="13" fill="black">House Stark</text>
+          <image xlink:href="images/renly-emblem.png" class="banner" id="renly-emblem" cursor="pointer" height="110" width="100" x="1000" y="10" />
+            <text x="1050" y="130" text-anchor="middle" font-size="13" fill="black">House Baratheon</text>
+            <text x="1050" y="140" text-anchor="middle" font-size="13" fill="black">(Renly)</text>
+          <image xlink:href="images/mimno-emblem.png" height="110" width="100" x="1100" y="10" />
+            <text x="1150" y="130" text-anchor="middle" font-size="13" fill="black">House Mimno</text>
 
-      <text x="600" y="120" text-anchor="middle" font-size="36" fill="black">War of the Five Kings</text>
-    </svg>
+          <text x="600" y="120" text-anchor="middle" font-size="36" fill="black">War of the Five Kings</text>
+        </svg>
+      </div>
+      <div class="section" id="slider-wrapper">
+        <img id="spear_slider" src="images/spear.png"/>
+        <input type="range" id="slider" min="0" max="20" step="1" value="0" />
+      </div>
+      <div class="section" id="map"></div>
+      <div class="section" id="timeline"></div>
+      <div class="section" id="side"></div>
+    </div>
   </div>
-  <div class="section" id="slider-wrapper">
-    <img id="spear_slider" src="images/spear.png"/>
-    <input type="range" id="slider" min="0" max="20" step="1" value="0" />
-    <span id="slider-value">0</span>
-  </div>
-  <div class="section" id="map"></div>
-  <div class="section" id="timeline"></div>
-  <div class="section" id="side"></div>
 
   <script>
     var STEP_DURATION = 2000, // Duration of a single time step
@@ -165,7 +190,7 @@
       'renly':     false
     }
 
-    d3.selectAll('div.banner').on('click', function () {
+    d3.selectAll('.banner').on('click', function () {
       var family = this.id.split('-')[0];
       hidden_families[family] = !hidden_families[family];
 
@@ -201,39 +226,49 @@
     svg.append('rect')
       .attr('fill', '#fff')
       .attr('opacity', '0.7')
-      .attr('height', '84')
-      .attr('width', '94')
-      .attr('rx', '8')
-      .attr('ry', '8')
-      .attr('x', '8')
-      .attr('y', '8');
+      .attr('height', 79)
+      .attr('width', 74)
+      .attr('rx', 8)
+      .attr('ry', 8)
+      .attr('x', 8)
+      .attr('y', 8);
 
     svg.append('image')
-      .attr('xlink:href', 'images/play.png')
+      .attr('xlink:href', 'images/play1.png')
       .attr('id', 'play')
-      .attr('height', '36')
-      .attr('width', '40')
-      .attr('x', '15')
-      .attr('y', '15')
+      .attr('height', 25)
+      .attr('width', 25)
+      .attr('x', 15)
+      .attr('y', 16)
       .attr('cursor', 'pointer');
 
     svg.append('image')
-      .attr('xlink:href', 'images/pause.png')
+      .attr('xlink:href', 'images/pause1.png')
       .attr('id', 'pause')
-      .attr('height', '36')
-      .attr('width', '40')
-      .attr('x', '55')
-      .attr('y', '15')
+      .attr('height', 25)
+      .attr('width', 25)
+      .attr('x', 15)
+      .attr('y', 53)
       .attr('cursor', 'pointer');
 
     svg.append('image')
-      .attr('xlink:href', 'images/reset.png')
+      .attr('xlink:href', 'images/reset1.png')
       .attr('id', 'reset')
-      .attr('height', '36')
-      .attr('width', '100')
-      .attr('x', '5')
-      .attr('y', '50')
+      .attr('height', 37)
+      .attr('width', 37)
+      .attr('x', 42)
+      .attr('y', 46)
       .attr('cursor', 'pointer');
+
+    svg.append('text')
+      .attr('id', 'slider-value')
+      .attr('x', 70)
+      .attr('y', 36)
+      .attr('text-anchor', 'end')
+      .text(0)
+      .attr('font-family', 'Helvetica')
+      .attr('font-size', 22)
+      .attr('fill', 'black');
 
     var swords = [];
 
@@ -750,7 +785,6 @@
         // this is the sword of steel
         // timeline.append('image')
         //           .attr('xlink:href','http://www.clker.com/cliparts/2/b/2/8/13663778451350263915sword.svg')
-        //           .attr('class', 'pico')
         //           .attr('height', 30)
         //           .attr('width', 20)
         //           .attr('x', 0)
@@ -767,10 +801,11 @@
           iter++;
           return scaledY;
         })
-        .attr("height", 18)
-        .attr("width", 165)
-        .style("stroke", "none")
-        .style("fill", "transparent");
+        .attr("height", 19)
+        .attr("width", 220)
+        .attr('cursor', 'pointer')
+        .attr("stroke", "none")
+        .attr("fill", "transparent");
 
         // loop thorugh events to display them
         
@@ -787,7 +822,6 @@
     function addImage(x, y, height, width, url){
       side.append('image')
         .attr('xlink:href',url)
-        .attr('class', 'pico')
         .attr('height', height)
         .attr('width', width)
         .attr('x', x)
@@ -843,15 +877,6 @@
       addImage(360, 320, 75, 75, affiliation[d.defender_king]);//defender banner
       addImage(0, 100, 200, 200, commander[d.main_attacker]);//attacker king
       addImage(300, 100, 200, 200, commander[d.main_defender]);//defender king
-
-      side.append('image')
-        .attr('xlink:href',"http://www.imarvintpa.com/Mapping/Overlays/Blood/Blood%20splatter%2019-sc.png")
-        .attr('class', 'pico')
-        .attr('height', 600)
-        .attr('width', 700)
-        .attr('x', 0)
-        .attr('y', 120)
-        .attr("opacity", 0.200);
       });
 
   // Before clicking on a battle the initial battle screen
@@ -860,12 +885,11 @@
     // blood overlay
     side.append('image')
         .attr('xlink:href',"http://www.imarvintpa.com/Mapping/Overlays/Blood/Blood%20splatter%2019-sc.png")
-        .attr('class', 'pico')
-        .attr('height', 700)
-        .attr('width', 700)
+        .attr('height', 500)
+        .attr('width', 500)
         .attr('x', 0)
-        .attr('y', 120)
-        .attr("opacity", 0.200);
+        .attr('y', 220)
+        .attr("opacity", 0.4);
 
     // prompt to select a
     addText("Instructions",250,30,36);
