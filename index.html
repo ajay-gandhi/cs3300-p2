@@ -378,8 +378,6 @@
      * Goes to current_step in the animation and animates to the following step.
      */
     function do_step () {
-      if (current_step == LAST_STEP) return;
-
       d3.select('#slider-value').text(current_step);
       d3.select('#slider')[0][0].value = current_step;
 
@@ -498,10 +496,10 @@
       });
 
       // Schedule next step if not last and if playing
-      if (current_step < LAST_STEP)
+      if (current_step < LAST_STEP) {
         next_step = setTimeout(do_step, STEP_DURATION);
-
-      current_step++;
+        current_step++;
+      }
     }
 
     /**
@@ -633,6 +631,7 @@
           .transition()
           .attr('transform', 'translate(' + x_scale(loc.x) + ',' + y_scale(loc.y) + ')');
       });
+
       // Remove unneeded armies
       d3.selectAll('.army')
         .filter(function () {
@@ -682,7 +681,7 @@
 
     d3.select('#play').on('click', function () {
       IS_PLAYING = true;
-      do_step();
+      if (current_step != LAST_STEP) do_step();
     });
     d3.select('#pause').on('click', function () {
       IS_PLAYING = false;
