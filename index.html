@@ -174,11 +174,11 @@
 
     var battle_data, battle_highlight, route_data, location_mapper = {};
     var affiliation_mapper = {
-      'Greyjoy':   '#a24f00',
-      'Lannister': '#850c11',
-      'Stark':     '#4b4e61',
-      'Stannis':   '#ffff69',
-      'Renly':     '#1e5e30'
+      'lannister': '#850c11',
+      'greyjoy':   '#a24f00',
+      'stannis':   '#ffff69',
+      'stark':     '#4b4e61',
+      'renly':     '#1e5e30'
     }
 
     var army_opacity = 0.7;
@@ -216,6 +216,29 @@
         .attr('height', height);
 
     var defs = svg.append('defs');
+
+    // Add emblem defs
+    Object.keys(hidden_families).forEach(function (n) {
+      var new_pattern = defs.append('pattern')
+        .attr('patternUnits', 'objectBoundingBox')
+        .attr('id', n + '-emblem-svg')
+        .attr('height', '100%')
+        .attr('width', '100%')
+        .attr('viewBox', '0 0 100 120')
+
+      new_pattern.append('circle')
+        .attr('cx', '50')
+        .attr('cy', '60')
+        .attr('r', 60)
+        .attr('fill', affiliation_mapper[n]);
+
+      new_pattern.append('image')
+        .attr('x', '13')
+        .attr('y', '21')
+        .attr('width', '75')
+        .attr('height', '90')
+        .attr('xlink:href', 'assets/' + n + '-emblem.svg');
+    });
 
     var g = svg.append('g');
     var zoom_behavior = d3.behavior.zoom()
@@ -353,7 +376,7 @@
             .domain([0, d3.max(route_data, function (d) {
               return Math.max(d.army_size_before, d.army_size_after);
             })])
-            .range([5, 30]);
+            .range([5, 40]);
 
           // Setup armies for first time step
           var initial = route_data.filter(function (d) {
@@ -362,11 +385,12 @@
 
           initial.forEach(function (d) {
             g.append('circle')
-              .style('fill', affiliation_mapper[d.affiliation])
+              .style('fill', 'url(#' + d.affiliation.toLowerCase() + '-emblem-svg)')//affiliation_mapper[d.affiliation])
               .style('opacity', hidden_families[d.affiliation.toLowerCase()] ? '0' : army_opacity)
               .attr('class', 'army ' + d.affiliation.toLowerCase())
               .attr('id', single_word(d.party_leader))
               .attr('r', army_scale(d.army_size_before))
+              // .attr('r', 100)
               .attr('cx', x_scale(location_mapper[d.start_location].x))
               .attr('cy', y_scale(location_mapper[d.start_location].y));
           });
@@ -404,7 +428,7 @@
         if (army.empty()) {
           // Must create army
           g.append('circle')
-            .style('fill', affiliation_mapper[m.affiliation])
+            .style('fill', 'url(#' + m.affiliation.toLowerCase() + '-emblem-svg)')//affiliation_mapper[m.affiliation])
             .style('opacity', hidden_families[m.affiliation.toLowerCase()] ? '0' : army_opacity)
             .attr('class', 'army ' + m.affiliation.toLowerCase())
             .attr('id', single_word(m.party_leader))
@@ -530,7 +554,7 @@
         if (army.empty()) {
           // Must create army
           g.append('circle')
-            .style('fill', affiliation_mapper[m.affiliation])
+            .style('fill', 'url(#' + m.affiliation.toLowerCase() + '-emblem-svg)')//affiliation_mapper[m.affiliation])
             .style('opacity', hidden_families[m.affiliation.toLowerCase()] ? '0' : army_opacity)
             .attr('class', 'army ' + m.affiliation.toLowerCase())
             .attr('id', single_word(m.party_leader))
@@ -566,7 +590,7 @@
 
         if (army.empty()) {
           g.append('circle')
-            .style('fill', affiliation_mapper[m.affiliation])
+            .style('fill', 'url(#' + m.affiliation.toLowerCase() + '-emblem-svg)')//affiliation_mapper[m.affiliation])
             .style('opacity', hidden_families[m.affiliation.toLowerCase()] ? '0' : army_opacity)
             .attr('class', 'army ' + m.affiliation.toLowerCase())
             .attr('id', single_word(m.party_leader))
@@ -590,7 +614,7 @@
         // Ensure they've reached ending location
         if (army.empty()) {
           g.append('circle')
-            .style('fill', affiliation_mapper[m.affiliation])
+            .style('fill', 'url(#' + m.affiliation.toLowerCase() + '-emblem-svg)')//affiliation_mapper[m.affiliation])
             .style('opacity', hidden_families[m.affiliation.toLowerCase()] ? '0' : army_opacity)
             .attr('class', 'army ' + m.affiliation.toLowerCase())
             .attr('id', single_word(m.party_leader))
