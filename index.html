@@ -298,20 +298,27 @@
     // Setup battle icons
     d3.xml('svg/westeros_map.svg', 'image/svg+xml', function (err, xml) {
       if (err) throw err;
-      var importedNode = document.importNode(xml.documentElement, true);
+      var imported_node = document.importNode(xml.documentElement, true);
 
       g.call(zoom_behavior);
-      g.node().appendChild(importedNode);
+      g.node().appendChild(imported_node);
 
       // Create the battle icons
       d3.xml('svg/swords.svg', 'image/svg+xml', function (err, xml) {
         if (err) throw err;
-        var importedNode = document.importNode(xml.documentElement, true);
+        var imported_node = document.importNode(xml.documentElement, true);
+        var clone         = document.importNode(xml.documentElement, true);
 
-        defs
-          .node()
-          .appendChild(importedNode);
-        defs.select('svg').attr('id', 'swords');
+        defs.node().appendChild(imported_node);
+        defs.select('svg')
+          .attr('id', 'swords')
+          .attr('fill', 'black');
+
+        defs.node().appendChild(clone);
+        defs.selectAll('svg')
+          .filter(function (s) { return this.id !== 'swords'; })
+          .attr('id', 'swords-white')
+          .attr('fill', 'white');
 
         for (var i = 0; i < 9; i++) {
           swords.push(g.append('g'));
@@ -508,8 +515,11 @@
       });
 
       // Reset swords
+      clearTimeout(sword_animation);
       swords.forEach(function (s) {
+        s.transition();
         s.attr('transform', 'translate(-100, -100)');
+        s.select('use').attr('xlink:href', '#swords');
       });
       current_battles.forEach(function (b, i) {
         var loc = location_mapper[b.location];
@@ -639,15 +649,17 @@
       });
 
       // Reset swords
+      clearTimeout(sword_animation);
       swords.forEach(function (s) {
         s.transition();
         s.attr('transform', 'translate(-100, -100)');
+        s.select('use').attr('xlink:href', '#swords');
       });
       current_battles.forEach(function (b, i) {
         var loc = location_mapper[b.location];
         if (b.battle_number == battle_highlight) {
           // Change color
-          swords[i].selectAll('*').attr('fill', '#ffffff');
+          animate_sword(swords[i]);
         }
 
         swords[i]
@@ -699,6 +711,16 @@
      */
     function single_word (str) {
       return str.replace(' ', '').trim();
+    }
+
+    /**
+     * Animates a sword between black and white
+     */
+    var sword_animation, sword_is_black = true;
+    function animate_sword (s) {
+      s.select('use').attr('xlink:href', '#swords' + (sword_is_black ? '-white' : ''));
+      sword_is_black = !sword_is_black;
+      sword_animation = setTimeout(animate_sword, 500, s);
     }
 
     /**************************************************************************/
