@@ -162,10 +162,7 @@
   </div>
 
   <script>
-
-    
-
-    var STEP_DURATION = 4000, // Duration of a single time step
+    var STEP_DURATION = 2000, // Duration of a single time step
         LAST_STEP;            // Max # of frames
 
     var IS_PLAYING = false,   // true if the animation is running
@@ -834,14 +831,6 @@
           .text(event_id_mapper[id].name)
           .style("font-size", 16)
           .style("fill","black");
-
-        // this is the sword of steel
-        // timeline.append('image')
-        //           .attr('xlink:href','http://www.clker.com/cliparts/2/b/2/8/13663778451350263915sword.svg')
-        //           .attr('height', 30)
-        //           .attr('width', 20)
-        //           .attr('x', 0)
-        //           .attr('y', 3+i*18);
       });
 
       var iter = 0;
