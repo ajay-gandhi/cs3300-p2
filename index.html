@@ -157,714 +157,662 @@
       </div>
       <div class="section" id="map"></div>
       <div class="section" id="timeline"></div>
-      <div class="section" id="side"></div>
+      <div class="section" id="side">
+        <svg width="700" height="700">
+          <image xlink:href="assets/black-swords.png" class="permanent" height="100" width="100" x="200" y="155" />
+          <image xlink:href="assets/splatter.png" class="permanent" height="500" width="500" x="0" y="220" opacity="0.35" />
+        </svg>
+      </div>
     </div>
   </div>
 
   <script>
-    var STEP_DURATION = 2000, // Duration of a single time step
-        LAST_STEP;            // Max # of frames
+  var STEP_DURATION = 2000, // Duration of a single time step
+      LAST_STEP;            // Max # of frames
 
-    var IS_PLAYING = false,   // true if the animation is running
-        next_step;            // holds the timeout
+  var IS_PLAYING = false,   // true if the animation is running
+      next_step;            // holds the timeout
 
-		var height = 770,
-		    width  = 400;
+	var height = 770,
+	    width  = 400;
 
-    var current_step = 0;
+  var current_step = 0;
 
-    var army_scale = d3.scale.sqrt(),
-        x_scale    = d3.scale.linear(),
-        y_scale    = d3.scale.linear();
+  var army_scale = d3.scale.sqrt(),
+      x_scale    = d3.scale.linear(),
+      y_scale    = d3.scale.linear();
 
-    var battle_data, battle_highlight, route_data, location_mapper = {};
-    var affiliation_mapper = {
-      'lannister': '#850c11',
-      'greyjoy':   '#a24f00',
-      'stannis':   '#ffff69',
-      'stark':     '#4b4e61',
-      'renly':     '#1e5e30'
-    }
+  var battle_data, battle_highlight, route_data, location_map = {};
+  var affiliation_color_map = {
+    'lannister': '#850c11',
+    'greyjoy':   '#a24f00',
+    'stannis':   '#ffff69',
+    'stark':     '#4b4e61',
+    'renly':     '#1e5e30'
+  }
 
-    var army_opacity = 0.7;
-    var hidden_families = {
-      'lannister': false,
-      'greyjoy':   false,
-      'stannis':   false,
-      'stark':     false,
-      'renly':     false
-    }
+  var army_opacity = 0.7;
+  var hidden_families = {
+    'lannister': false,
+    'greyjoy':   false,
+    'stannis':   false,
+    'stark':     false,
+    'renly':     false
+  }
 
-    d3.selectAll('.banner').on('click', function () {
-      var family = this.id.split('-')[0];
-      hidden_families[family] = !hidden_families[family];
+  d3.selectAll('.banner').on('click', function () {
+    var family = this.id.split('-')[0];
+    hidden_families[family] = !hidden_families[family];
 
-      // Hide/show families of clicked family
-      d3.selectAll('.army')
-        .filter(function (a) {
-          return d3.select(this).classed(family);
-        })
-        .style('opacity', hidden_families[family] ? '0' : army_opacity);
+    // Hide/show families of clicked family
+    d3.selectAll('.army')
+      .filter(function (a) {
+        return d3.select(this).classed(family);
+      })
+      .style('opacity', hidden_families[family] ? '0' : army_opacity);
 
-      // Toggle opacity of image
-      d3.select(this).classed('hidden-family', hidden_families[family]);
-    });
+    // Toggle opacity of image
+    d3.select(this).classed('hidden-family', hidden_families[family]);
+  });
 
-    /****************************** Westeros Map ******************************/
+  /****************************** Westeros Map ******************************/
 
-    var svg = d3.select('#map')
-        .append('svg')
-        .attr('width', width)
-        .attr('height', height);
+  var svg = d3.select('#map')
+      .append('svg')
+      .attr('width', width)
+      .attr('height', height);
 
-    var defs = svg.append('defs');
+  var defs = svg.append('defs');
 
-    // Add emblem defs
-    Object.keys(hidden_families).forEach(function (n) {
-      var new_pattern = defs.append('pattern')
-        .attr('patternUnits', 'objectBoundingBox')
-        .attr('id', n + '-emblem-svg')
-        .attr('height', '100%')
-        .attr('width', '100%')
-        .attr('viewBox', '0 0 100 120')
+  // Add emblem defs
+  Object.keys(hidden_families).forEach(function (n) {
+    var new_pattern = defs.append('pattern')
+      .attr('patternUnits', 'objectBoundingBox')
+      .attr('id', n + '-emblem-svg')
+      .attr('height', '100%')
+      .attr('width', '100%')
+      .attr('viewBox', '0 0 100 120')
 
-      new_pattern.append('circle')
-        .attr('cx', '50')
-        .attr('cy', '60')
-        .attr('r', 60)
-        .attr('fill', affiliation_mapper[n]);
+    new_pattern.append('circle')
+      .attr('cx', '50')
+      .attr('cy', '60')
+      .attr('r', 60)
+      .attr('fill', affiliation_color_map[n]);
 
-      new_pattern.append('image')
-        .attr('x', '13')
-        .attr('y', '21')
-        .attr('width', '75')
-        .attr('height', '90')
-        .attr('xlink:href', 'assets/' + n + '-emblem.svg');
-    });
+    new_pattern.append('image')
+      .attr('x', '13')
+      .attr('y', '21')
+      .attr('width', '75')
+      .attr('height', '90')
+      .attr('xlink:href', 'assets/' + n + '-emblem.svg');
+  });
 
-    var g = svg.append('g');
-    var zoom_behavior = d3.behavior.zoom()
-      .scaleExtent([1, 4])
-      .on('zoom', zoom_func);
+  var g = svg.append('g');
+  var zoom_behavior = d3.behavior.zoom()
+    .scaleExtent([1, 4])
+    .on('zoom', zoom_func);
 
-    // Setup player
-    svg.append('rect')
-      .attr('fill', '#fff')
-      .attr('opacity', '0.7')
-      .attr('height', 79)
-      .attr('width', 74)
-      .attr('rx', 8)
-      .attr('ry', 8)
-      .attr('x', 12)
-      .attr('y', 12);
+  // Setup player
+  svg.append('rect')
+    .attr('fill', '#fff')
+    .attr('opacity', '0.7')
+    .attr('height', 79)
+    .attr('width', 74)
+    .attr('rx', 8)
+    .attr('ry', 8)
+    .attr('x', 12)
+    .attr('y', 12);
 
-    svg.append('image')
-      .attr('xlink:href', 'assets/play.png')
-      .attr('id', 'play')
-      .attr('height', 25)
-      .attr('width', 25)
-      .attr('x', 19)
-      .attr('y', 20)
-      .attr('cursor', 'pointer');
+  svg.append('image')
+    .attr('xlink:href', 'assets/play.png')
+    .attr('id', 'play')
+    .attr('height', 25)
+    .attr('width', 25)
+    .attr('x', 19)
+    .attr('y', 20)
+    .attr('cursor', 'pointer');
 
-    svg.append('image')
-      .attr('xlink:href', 'assets/pause.png')
-      .attr('id', 'pause')
-      .attr('height', 25)
-      .attr('width', 25)
-      .attr('x', 19)
-      .attr('y', 57)
-      .attr('cursor', 'pointer');
+  svg.append('image')
+    .attr('xlink:href', 'assets/pause.png')
+    .attr('id', 'pause')
+    .attr('height', 25)
+    .attr('width', 25)
+    .attr('x', 19)
+    .attr('y', 57)
+    .attr('cursor', 'pointer');
 
-    svg.append('image')
-      .attr('xlink:href', 'assets/reset.png')
-      .attr('id', 'reset')
-      .attr('height', 37)
-      .attr('width', 37)
-      .attr('x', 46)
-      .attr('y', 50)
-      .attr('cursor', 'pointer');
+  svg.append('image')
+    .attr('xlink:href', 'assets/reset.png')
+    .attr('id', 'reset')
+    .attr('height', 37)
+    .attr('width', 37)
+    .attr('x', 46)
+    .attr('y', 50)
+    .attr('cursor', 'pointer');
 
-    svg.append('text')
-      .attr('id', 'slider-value')
-      .attr('x', 74)
-      .attr('y', 40)
-      .attr('text-anchor', 'end')
-      .text(0)
-      .attr('font-family', 'Helvetica')
-      .attr('font-size', 22)
-      .attr('fill', 'black');
+  svg.append('text')
+    .attr('id', 'slider-value')
+    .attr('x', 74)
+    .attr('y', 40)
+    .attr('text-anchor', 'end')
+    .text(0)
+    .attr('font-family', 'Helvetica')
+    .attr('font-size', 22)
+    .attr('fill', 'black');
 
-    var swords = [];
+  var swords = [];
 
-    // Setup battle icons
-    d3.xml('svg/westeros_map.svg', 'image/svg+xml', function (err, xml) {
+  // Setup battle icons
+  d3.xml('svg/westeros_map.svg', 'image/svg+xml', function (err, xml) {
+    if (err) throw err;
+    var imported_node = document.importNode(xml.documentElement, true);
+
+    g.call(zoom_behavior);
+    g.node().appendChild(imported_node);
+
+    // Create the battle icons
+    d3.xml('svg/swords.svg', 'image/svg+xml', function (err, xml) {
       if (err) throw err;
       var imported_node = document.importNode(xml.documentElement, true);
+      var clone         = document.importNode(xml.documentElement, true);
 
-      g.call(zoom_behavior);
-      g.node().appendChild(imported_node);
+      defs.node().appendChild(imported_node);
+      defs.select('svg')
+        .attr('id', 'swords')
+        .attr('fill', 'black');
 
-      // Create the battle icons
-      d3.xml('svg/swords.svg', 'image/svg+xml', function (err, xml) {
-        if (err) throw err;
-        var imported_node = document.importNode(xml.documentElement, true);
-        var clone         = document.importNode(xml.documentElement, true);
+      defs.node().appendChild(clone);
+      defs.selectAll('svg')
+        .filter(function (s) { return this.id !== 'swords'; })
+        .attr('id', 'swords-white')
+        .attr('fill', 'white');
 
-        defs.node().appendChild(imported_node);
-        defs.select('svg')
-          .attr('id', 'swords')
-          .attr('fill', 'black');
+      for (var i = 0; i < 9; i++) {
+        swords.push(g.append('g'));
+        swords[i].append('g')
+          .attr('transform', 'translate(20, 20) scale(0.05) rotate(180)')
+          .append('use')
+          .attr('xlink:href', '#swords');
+        swords[i].attr('transform', 'translate(-100, 100)');
+      }
+    });
 
-        defs.node().appendChild(clone);
-        defs.selectAll('svg')
-          .filter(function (s) { return this.id !== 'swords'; })
-          .attr('id', 'swords-white')
-          .attr('fill', 'white');
+    // Setup x,y scales
+    var bbox = g.node().getBBox();
 
-        for (var i = 0; i < 9; i++) {
-          swords.push(g.append('g'));
-          swords[i].append('g')
-            .attr('transform', 'translate(20, 20) scale(0.05) rotate(180)')
-            .append('use')
-            .attr('xlink:href', '#swords');
-          swords[i].attr('transform', 'translate(-100, 100)');
+    x_scale
+      .domain([0, 720])
+      .range([0, bbox.width]);
+    y_scale
+      .domain([0, 1390])
+      .range([0, bbox.height]);
+
+    d3.csv('data/battles.csv', function (err, battles) {
+      if (err) throw err;
+
+      setup_battle_display(battles);
+
+      // Map appropriate data to numbers
+      battle_data = battles.map(function (b) {
+        b.y_coord  = Number(b.y_coord);
+        b.x_coord  = Number(b.x_coord);
+        b.location = b.location.trim();
+        return b;
+      });
+
+      battle_data.forEach(function (d) {
+        // Fill location map
+        if (d.location) {
+          location_map[d.location] = {
+            x: d.x_coord,
+            y: d.y_coord
+          }
         }
       });
 
-      // Setup x,y scales
-      var bbox = g.node().getBBox();
-
-      x_scale
-        .domain([0, 720])
-        .range([0, bbox.width]);
-      y_scale
-        .domain([0, 1390])
-        .range([0, bbox.height]);
-
-      d3.csv('data/battles.csv', function (err, battles) {
+      d3.csv('data/route.csv', function (err, routes) {
         if (err) throw err;
-
         // Map appropriate data to numbers
-        battle_data = battles.map(function (b) {
-          b.y_coord  = Number(b.y_coord);
-          b.x_coord  = Number(b.x_coord);
-          b.location = b.location.trim();
-          return b;
+        route_data = routes.map(function (t) {
+          t.start_time        = Number(t.start_time);
+          t.end_time          = Number(t.end_time);
+          t.army_size_before  = Number(t.army_size_before);
+          t.army_size_after   = Number(t.army_size_after);
+          t.start_location    = t.start_location.trim();
+          t.target_location   = t.target_location.trim();
+          t.is_done           = t.is_done === '1' ? true : false;
+          return t;
         });
 
-        battle_data.forEach(function (d) {
-          // Fill location mapper
-          if (d.location) {
-            location_mapper[d.location] = {
-              x: d.x_coord,
-              y: d.y_coord
-            }
-          }
+        // Save last time step
+        LAST_STEP = d3.max(route_data, function (d) { return d.end_time; });
+
+        // Set up scale
+        army_scale
+          .domain([0, d3.max(route_data, function (d) {
+            return Math.max(d.army_size_before, d.army_size_after);
+          })])
+          .range([5, 40]);
+
+        // Setup armies for first time step
+        var initial = route_data.filter(function (d) {
+          return d.start_time == 0;
         });
 
-        d3.csv('data/route.csv', function (err, routes) {
-          if (err) throw err;
-          // Map appropriate data to numbers
-          route_data = routes.map(function (t) {
-            t.start_time        = Number(t.start_time);
-            t.end_time          = Number(t.end_time);
-            t.army_size_before  = Number(t.army_size_before);
-            t.army_size_after   = Number(t.army_size_after);
-            t.start_location    = t.start_location.trim();
-            t.target_location   = t.target_location.trim();
-            t.is_done           = t.is_done === '1' ? true : false;
-            return t;
-          });
-
-          // Save last time step
-          LAST_STEP = d3.max(route_data, function (d) { return d.end_time; });
-
-          // Set up scale
-          army_scale
-            .domain([0, d3.max(route_data, function (d) {
-              return Math.max(d.army_size_before, d.army_size_after);
-            })])
-            .range([5, 40]);
-
-          // Setup armies for first time step
-          var initial = route_data.filter(function (d) {
-            return d.start_time == 0;
-          });
-
-          initial.forEach(function (d) {
-            g.append('circle')
-              .style('fill', 'url(#' + d.affiliation.toLowerCase() + '-emblem-svg)')//affiliation_mapper[d.affiliation])
-              .style('opacity', hidden_families[d.affiliation.toLowerCase()] ? '0' : army_opacity)
-              .attr('class', 'army ' + d.affiliation.toLowerCase())
-              .attr('id', single_word(d.party_leader))
-              .attr('r', army_scale(d.army_size_before))
-              // .attr('r', 100)
-              .attr('cx', x_scale(location_mapper[d.start_location].x))
-              .attr('cy', y_scale(location_mapper[d.start_location].y));
-          });
+        initial.forEach(function (d) {
+          g.append('circle')
+            .style('fill', 'url(#' + d.affiliation.toLowerCase() + '-emblem-svg)')
+            .style('opacity', hidden_families[d.affiliation.toLowerCase()] ? '0' : army_opacity)
+            .attr('class', 'army ' + d.affiliation.toLowerCase())
+            .attr('id', single_word(d.party_leader))
+            .attr('r', army_scale(d.army_size_before))
+            .attr('cx', x_scale(location_map[d.start_location].x))
+            .attr('cy', y_scale(location_map[d.start_location].y));
         });
       });
     });
+  });
 
-    /**
-     * Goes to current_step in the animation and animates to the following step.
-     */
-    function do_step () {
-      d3.select('#slider-value').text(current_step);
-      d3.select('#slider')[0][0].value = current_step;
+  /**
+   * Goes to current_step in the animation and animates to the following step.
+   */
+  function do_step () {
+    d3.select('#slider-value').text(current_step);
+    d3.select('#slider')[0][0].value = current_step;
 
-      // Stop at this step
-      if (!IS_PLAYING) {
-        d3.selectAll('.army').transition();
-        finish_step();
-        return;
+    // Stop at this step
+    if (!IS_PLAYING) {
+      d3.selectAll('.army').transition();
+      return;
+    }
+
+    // Setup current time step armies
+    var starts_now = route_data.filter(function (d) {
+      return d.start_time == current_step;
+    });
+    var moving_now = route_data.filter(function (d) {
+      return d.end_time > current_step && d.start_time < current_step;
+    });
+    var ending_now = route_data.filter(function (d) {
+      return d.end_time == current_step;
+    });
+
+    starts_now.forEach(function (m) {
+      var army = g.select('#' + single_word(m.party_leader));
+      if (army.empty()) {
+        // Must create army
+        g.append('circle')
+          .style('fill', 'url(#' + m.affiliation.toLowerCase() + '-emblem-svg)')//affiliation_color_map[m.affiliation])
+          .style('opacity', hidden_families[m.affiliation.toLowerCase()] ? '0' : army_opacity)
+          .attr('class', 'army ' + m.affiliation.toLowerCase())
+          .attr('id', single_word(m.party_leader))
+          .attr('r', army_scale(m.army_size_before))
+          .attr('cx', x_scale(location_map[m.start_location].x))
+          .attr('cy', y_scale(location_map[m.start_location].y));
+
+      } else {
+        // Ensure they've reached starting location
+        army
+          .attr('r', army_scale(m.army_size_before))
+          .attr('cx', x_scale(location_map[m.start_location].x))
+          .attr('cy', y_scale(location_map[m.start_location].y))
       }
 
-      // Setup current time step armies
-      var starts_now = route_data.filter(function (d) {
-        return d.start_time == current_step;
-      });
-      var moving_now = route_data.filter(function (d) {
-        return d.end_time > current_step && d.start_time < current_step;
-      });
-      var ending_now = route_data.filter(function (d) {
-        return d.end_time == current_step;
-      });
+      // Animate to ending location
+      army
+        .transition()
+        .ease('linear')
+        .attr('r', army_scale(m.army_size_after))
+        .attr('cx', x_scale(location_map[m.target_location].x))
+        .attr('cy', y_scale(location_map[m.target_location].y))
+        .duration(STEP_DURATION * (m.end_time - m.start_time));
 
-      starts_now.forEach(function (m) {
-        var army = g.select('#' + single_word(m.party_leader));
-        if (army.empty()) {
-          // Must create army
-          g.append('circle')
-            .style('fill', 'url(#' + m.affiliation.toLowerCase() + '-emblem-svg)')//affiliation_mapper[m.affiliation])
-            .style('opacity', hidden_families[m.affiliation.toLowerCase()] ? '0' : army_opacity)
-            .attr('class', 'army ' + m.affiliation.toLowerCase())
-            .attr('id', single_word(m.party_leader))
-            .attr('r', army_scale(m.army_size_before))
-            .attr('cx', x_scale(location_mapper[m.start_location].x))
-            .attr('cy', y_scale(location_mapper[m.start_location].y));
+      if (m.is_done) {
+        setTimeout(function (elm) {
+          elm.transition()
+            .attr('r', 0);
+        },
+        STEP_DURATION * (m.end_time - m.start_time),
+        g.select('#' + single_word(m.party_leader)));
+      }
+    });
 
-        } else {
-          // Ensure they've reached starting location
-          army
-            .attr('r', army_scale(m.army_size_before))
-            .attr('cx', x_scale(location_mapper[m.start_location].x))
-            .attr('cy', y_scale(location_mapper[m.start_location].y))
-        }
+    // Armies that are moving now should go from their interpolated location
+    moving_now.forEach(function (m) {
+      var army = g.select('#' + single_word(m.party_leader));
 
-        // Animate to ending location
+      // Calculate interpolated location
+      var duration = m.end_time - m.start_time,
+          frac = (current_step - m.start_time) / duration;
+
+      var s = location_map[m.start_location],
+          t = location_map[m.target_location];
+
+      var inter_x    = (t.x - s.x) * frac + s.x,
+          inter_y    = (t.y - s.y) * frac + s.y,
+          inter_size = (m.army_size_after - m.army_size_before) * frac + m.army_size_before;
+
+      // Set location
+      army
+        .attr('r', army_scale(inter_size))
+        .attr('cx', x_scale(inter_x))
+        .attr('cy', y_scale(inter_y));
+
+      // Animate to ending location
+      army
+        .transition()
+        .ease('linear')
+        .attr('r', army_scale(m.army_size_after))
+        .attr('cx', x_scale(location_map[m.target_location].x))
+        .attr('cy', y_scale(location_map[m.target_location].y))
+        .duration(STEP_DURATION * (m.end_time - current_step));
+    });
+
+    // Armies that end now should go to their target location and die if necessary
+    ending_now.forEach(function (m) {
+      var army = g.select('#' + single_word(m.party_leader));
+      if (m.is_done) {
+        army.transition().attr('r', 0);
+      }
+    });
+
+    // Battle icon
+    var current_battles = battle_data.filter(function (b) {
+      return b.time_data == current_step && b.time_data !== '';
+    });
+
+    // Reset swords
+    clearTimeout(sword_animation);
+    swords.forEach(function (s) {
+      s.transition();
+      s.attr('transform', 'translate(-100, -100)');
+      s.select('use').attr('xlink:href', '#swords');
+    });
+    current_battles.forEach(function (b, i) {
+      var loc = location_map[b.location];
+      swords[i]
+        .attr('transform', 'translate(' + x_scale(loc.x) + ',' + y_scale(loc.y) + ')scale(0.5)')
+        .transition()
+        .attr('transform', 'translate(' + x_scale(loc.x) + ',' + y_scale(loc.y) + ')');
+    });
+
+    // Schedule next step if not last and if playing
+    if (current_step < LAST_STEP) {
+      next_step = setTimeout(do_step, STEP_DURATION);
+      current_step++;
+    }
+  }
+
+  /**
+   * Goes to current_step in the animation
+   */
+  function goto_step () {
+    var current_armies = [];
+    d3.select('#slider-value').text(current_step);
+    d3.select('#slider')[0][0].value = current_step;
+
+    // Grab relevant armies
+    var starts_now = route_data.filter(function (d) {
+      return d.start_time == current_step;
+    });
+    var moving_now = route_data.filter(function (d) {
+      return d.end_time > current_step && d.start_time < current_step;
+    });
+    var ending_now = route_data.filter(function (d) {
+      return d.end_time == current_step;
+    });
+
+    // Armies that start now should just appear and stay at their start location
+    starts_now.forEach(function (m) {
+      current_armies.push(single_word(m.party_leader));
+      var army = g.select('#' + single_word(m.party_leader));
+      if (army.empty()) {
+        // Must create army
+        g.append('circle')
+          .style('fill', 'url(#' + m.affiliation.toLowerCase() + '-emblem-svg)')//affiliation_color_map[m.affiliation])
+          .style('opacity', hidden_families[m.affiliation.toLowerCase()] ? '0' : army_opacity)
+          .attr('class', 'army ' + m.affiliation.toLowerCase())
+          .attr('id', single_word(m.party_leader))
+          .attr('r', army_scale(m.army_size_before))
+          .attr('cx', x_scale(location_map[m.start_location].x))
+          .attr('cy', y_scale(location_map[m.start_location].y));
+
+      } else {
+        // Ensure they've reached starting location
         army
-          .transition()
-          .ease('linear')
-          .attr('r', army_scale(m.army_size_after))
-          .attr('cx', x_scale(location_mapper[m.target_location].x))
-          .attr('cy', y_scale(location_mapper[m.target_location].y))
-          .duration(STEP_DURATION * (m.end_time - m.start_time));
+          .attr('r', army_scale(m.army_size_before))
+          .attr('cx', x_scale(location_map[m.start_location].x))
+          .attr('cy', y_scale(location_map[m.start_location].y))
+      }
+    });
 
-        if (m.is_done) {
-          setTimeout(function (elm) {
-            elm.transition()
-              .attr('r', 0);
-          },
-          STEP_DURATION * (m.end_time - m.start_time),
-          g.select('#' + single_word(m.party_leader)));
-        }
-      });
+    // Armies that are moving now should go to their interpolated location
+    moving_now.forEach(function (m) {
+      current_armies.push(single_word(m.party_leader));
 
-      // Armies that are moving now should go from their interpolated location
-      moving_now.forEach(function (m) {
-        var army = g.select('#' + single_word(m.party_leader));
+      var army = g.select('#' + single_word(m.party_leader));
 
-        // Calculate interpolated location
-        var duration = m.end_time - m.start_time,
-            frac = (current_step - m.start_time) / duration;
+      // Calculate interpolated location
+      var duration = m.end_time - m.start_time,
+          frac = (current_step - m.start_time) / duration;
 
-        var s = location_mapper[m.start_location],
-            t = location_mapper[m.target_location];
+      var s = location_map[m.start_location],
+          t = location_map[m.target_location];
 
-        var inter_x    = (t.x - s.x) * frac + s.x,
-            inter_y    = (t.y - s.y) * frac + s.y,
-            inter_size = (m.army_size_after - m.army_size_before) * frac + m.army_size_before;
+      var inter_x    = (t.x - s.x) * frac + s.x,
+          inter_y    = (t.y - s.y) * frac + s.y,
+          inter_size = (m.army_size_after - m.army_size_before) * frac + m.army_size_before;
 
+      if (army.empty()) {
+        g.append('circle')
+          .style('fill', 'url(#' + m.affiliation.toLowerCase() + '-emblem-svg)')//affiliation_color_map[m.affiliation])
+          .style('opacity', hidden_families[m.affiliation.toLowerCase()] ? '0' : army_opacity)
+          .attr('class', 'army ' + m.affiliation.toLowerCase())
+          .attr('id', single_word(m.party_leader))
+          .attr('r', army_scale(m.army_size_before))
+          .attr('cx', x_scale(location_map[m.start_location].x))
+          .attr('cy', y_scale(location_map[m.start_location].y));
+
+      } else {
         // Set location
         army
           .attr('r', army_scale(inter_size))
           .attr('cx', x_scale(inter_x))
           .attr('cy', y_scale(inter_y));
+      }
+    });
 
-        // Animate to ending location
-        army
-          .transition()
-          .ease('linear')
+    // Armies that end now should go to their target location and die if necessary
+    ending_now.forEach(function (m) {
+      current_armies.push(single_word(m.party_leader));
+      var army = g.select('#' + single_word(m.party_leader));
+      // Ensure they've reached ending location
+      if (army.empty()) {
+        g.append('circle')
+          .style('fill', 'url(#' + m.affiliation.toLowerCase() + '-emblem-svg)')
+          .style('opacity', hidden_families[m.affiliation.toLowerCase()] ? '0' : army_opacity)
+          .attr('class', 'army ' + m.affiliation.toLowerCase())
+          .attr('id', single_word(m.party_leader))
           .attr('r', army_scale(m.army_size_after))
-          .attr('cx', x_scale(location_mapper[m.target_location].x))
-          .attr('cy', y_scale(location_mapper[m.target_location].y))
-          .duration(STEP_DURATION * (m.end_time - current_step));
-      });
+          .attr('cx', x_scale(location_map[m.target_location].x))
+          .attr('cy', y_scale(location_map[m.target_location].y));
 
-      // Armies that end now should go to their target location and die if necessary
-      ending_now.forEach(function (m) {
-        var army = g.select('#' + single_word(m.party_leader));
-        if (m.is_done) {
-          army.transition().attr('r', 0);
-        }
-      });
-
-      // Battle icon
-      var current_battles = battle_data.filter(function (b) {
-        return b.time_data == current_step && b.time_data !== '';
-      });
-
-      // Reset swords
-      clearTimeout(sword_animation);
-      swords.forEach(function (s) {
-        s.transition();
-        s.attr('transform', 'translate(-100, -100)');
-        s.select('use').attr('xlink:href', '#swords');
-      });
-      current_battles.forEach(function (b, i) {
-        var loc = location_mapper[b.location];
-        swords[i]
-          .attr('transform', 'translate(' + x_scale(loc.x) + ',' + y_scale(loc.y) + ')scale(0.5)')
-          .transition()
-          .attr('transform', 'translate(' + x_scale(loc.x) + ',' + y_scale(loc.y) + ')');
-      });
-
-      // Schedule next step if not last and if playing
-      if (current_step < LAST_STEP) {
-        next_step = setTimeout(do_step, STEP_DURATION);
-        current_step++;
+      } else {
+        army
+          .attr('r', army_scale(m.army_size_after))
+          .attr('cx', x_scale(location_map[m.target_location].x))
+          .attr('cy', y_scale(location_map[m.target_location].y));
       }
-    }
-
-    /**
-     * Goes to current_step in the animation
-     */
-    function goto_step () {
-      var current_armies = [];
-      d3.select('#slider-value').text(current_step);
-      d3.select('#slider')[0][0].value = current_step;
-
-      // Grab relevant armies
-      var starts_now = route_data.filter(function (d) {
-        return d.start_time == current_step;
-      });
-      var moving_now = route_data.filter(function (d) {
-        return d.end_time > current_step && d.start_time < current_step;
-      });
-      var ending_now = route_data.filter(function (d) {
-        return d.end_time == current_step;
-      });
-
-      //console.log(starts_now, moving_now, ending_now);
-
-      // Armies that start now should just appear and stay at their start location
-      starts_now.forEach(function (m) {
-        current_armies.push(single_word(m.party_leader));
-        var army = g.select('#' + single_word(m.party_leader));
-        if (army.empty()) {
-          // Must create army
-          g.append('circle')
-            .style('fill', 'url(#' + m.affiliation.toLowerCase() + '-emblem-svg)')//affiliation_mapper[m.affiliation])
-            .style('opacity', hidden_families[m.affiliation.toLowerCase()] ? '0' : army_opacity)
-            .attr('class', 'army ' + m.affiliation.toLowerCase())
-            .attr('id', single_word(m.party_leader))
-            .attr('r', army_scale(m.army_size_before))
-            .attr('cx', x_scale(location_mapper[m.start_location].x))
-            .attr('cy', y_scale(location_mapper[m.start_location].y));
-
-        } else {
-          // Ensure they've reached starting location
-          army
-            .attr('r', army_scale(m.army_size_before))
-            .attr('cx', x_scale(location_mapper[m.start_location].x))
-            .attr('cy', y_scale(location_mapper[m.start_location].y))
-        }
-      });
-
-      // Armies that are moving now should go to their interpolated location
-      moving_now.forEach(function (m) {
-        current_armies.push(single_word(m.party_leader));
-
-        var army = g.select('#' + single_word(m.party_leader));
-
-        // Calculate interpolated location
-        var duration = m.end_time - m.start_time,
-            frac = (current_step - m.start_time) / duration;
-
-        var s = location_mapper[m.start_location],
-            t = location_mapper[m.target_location];
-
-        var inter_x    = (t.x - s.x) * frac + s.x,
-            inter_y    = (t.y - s.y) * frac + s.y,
-            inter_size = (m.army_size_after - m.army_size_before) * frac + m.army_size_before;
-
-        if (army.empty()) {
-          g.append('circle')
-            .style('fill', 'url(#' + m.affiliation.toLowerCase() + '-emblem-svg)')//affiliation_mapper[m.affiliation])
-            .style('opacity', hidden_families[m.affiliation.toLowerCase()] ? '0' : army_opacity)
-            .attr('class', 'army ' + m.affiliation.toLowerCase())
-            .attr('id', single_word(m.party_leader))
-            .attr('r', army_scale(m.army_size_before))
-            .attr('cx', x_scale(location_mapper[m.start_location].x))
-            .attr('cy', y_scale(location_mapper[m.start_location].y));
-
-        } else {
-          // Set location
-          army
-            .attr('r', army_scale(inter_size))
-            .attr('cx', x_scale(inter_x))
-            .attr('cy', y_scale(inter_y));
-        }
-      });
-
-      // Armies that end now should go to their target location and die if necessary
-      ending_now.forEach(function (m) {
-        current_armies.push(single_word(m.party_leader));
-        var army = g.select('#' + single_word(m.party_leader));
-        // Ensure they've reached ending location
-        if (army.empty()) {
-          g.append('circle')
-            .style('fill', 'url(#' + m.affiliation.toLowerCase() + '-emblem-svg)')//affiliation_mapper[m.affiliation])
-            .style('opacity', hidden_families[m.affiliation.toLowerCase()] ? '0' : army_opacity)
-            .attr('class', 'army ' + m.affiliation.toLowerCase())
-            .attr('id', single_word(m.party_leader))
-            .attr('r', army_scale(m.army_size_after))
-            .attr('cx', x_scale(location_mapper[m.target_location].x))
-            .attr('cy', y_scale(location_mapper[m.target_location].y));
-
-        } else {
-          army
-            .attr('r', army_scale(m.army_size_after))
-            .attr('cx', x_scale(location_mapper[m.target_location].x))
-            .attr('cy', y_scale(location_mapper[m.target_location].y));
-        }
-        if (m.is_done) {
-          army.transition()
-            .attr('r', 0);
-        }
-      });
-
-      var current_battles = battle_data.filter(function (b) {
-        return b.time_data == current_step && b.time_data !== '';
-      });
-
-      // Reset swords
-      clearTimeout(sword_animation);
-      swords.forEach(function (s) {
-        s.transition();
-        s.attr('transform', 'translate(-100, -100)');
-        s.select('use').attr('xlink:href', '#swords');
-      });
-      current_battles.forEach(function (b, i) {
-        var loc = location_mapper[b.location];
-        if (b.battle_number == battle_highlight) {
-          // Change color
-          animate_sword(swords[i]);
-        }
-
-        swords[i]
-          .attr('transform', 'translate(' + x_scale(loc.x) + ',' + y_scale(loc.y) + ')scale(0.5)')
-          .transition()
-          .attr('transform', 'translate(' + x_scale(loc.x) + ',' + y_scale(loc.y) + ')');
-      });
-
-      // Remove unneeded armies
-      d3.selectAll('.army')
-        .filter(function () {
-          return current_armies.indexOf(this.id) < 0;
-        })
-        .remove();
-    }
-
-    function finish_step () {
-      console.log('done lol');
-    }
-
-    /**************************************************************************/
-
-    /**
-     * Zoom behavior for map
-     */
-    function zoom_func () {
-      var trans = d3.event.translate,
-          scale = d3.event.scale;
-
-      // Pan limiting
-      if (trans[1] > 1) {
-        trans[1] = 0;
-      } else if (trans[1] < -height * scale + height - 1) {
-        trans[1] = -height * scale + height;
-      }
-
-      if (trans[0] > 1) {
-        trans[0] = 0;
-      } else if (trans[0] < -width * scale + width - 1) {
-        trans[0] = -width * scale + width;
-      }
-
-      zoom_behavior.translate(trans);
-      g.attr('transform', 'translate(' + trans + ')scale(' + scale + ')');
-    }
-
-    /**
-     * Removes all whitespace from the given string
-     */
-    function single_word (str) {
-      return str.replace(' ', '').trim();
-    }
-
-    /**
-     * Animates a sword between black and white
-     */
-    var sword_animation, sword_is_black = true;
-    function animate_sword (s) {
-      s.select('use').attr('xlink:href', '#swords' + (sword_is_black ? '-white' : ''));
-      sword_is_black = !sword_is_black;
-      sword_animation = setTimeout(animate_sword, 500, s);
-    }
-
-    /**************************************************************************/
-
-    d3.select('#play').on('click', function () {
-      if (!IS_PLAYING) {
-        IS_PLAYING = true;
-        if (current_step != LAST_STEP) do_step();
+      if (m.is_done) {
+        army.transition()
+          .attr('r', 0);
       }
     });
-    d3.select('#pause').on('click', function () {
-      IS_PLAYING = false;
-    });
-    d3.select('#reset').on('click',function (){
-      IS_PLAYING = false;
-      current_step = 0;
-      goto_step();
-      display_instructions();
-    });
-    d3.select('#slider').on('input', function () {
-      d3.select('#slider-value').text(this.value);
-      IS_PLAYING = false;
-      current_step = this.value;
-      goto_step();
+
+    var current_battles = battle_data.filter(function (b) {
+      return b.time_data == current_step && b.time_data !== '';
     });
 
-    var timeline = d3.select("#timeline")
-                    .append("svg")
-                    .attr("width", 230)
-                    .attr("height", 780);
+    // Reset swords
+    clearTimeout(sword_animation);
+    swords.forEach(function (s) {
+      s.transition();
+      s.attr('transform', 'translate(-100, -100)');
+      s.select('use').attr('xlink:href', '#swords');
+    });
+    current_battles.forEach(function (b, i) {
+      var loc = location_map[b.location];
+      if (b.battle_number == battle_highlight) {
+        // Change color
+        animate_sword(swords[i]);
+      }
 
-    var side = d3.select("#side")
-                .append("svg")
-                .attr("width", 700)
-                .attr("height", 700);
-    
-    var event_info = {};
-    var event_id_mapper = {};
+      swords[i]
+        .attr('transform', 'translate(' + x_scale(loc.x) + ',' + y_scale(loc.y) + ')scale(0.5)')
+        .transition()
+        .attr('transform', 'translate(' + x_scale(loc.x) + ',' + y_scale(loc.y) + ')');
+    });
 
-    var affiliation = {
-      "Joffery Baratheon": "assets/lannister-emblem.png",
-      "Balon Greyjoy":     "assets/greyjoy-emblem.png",
-      "Robb Stark":        "assets/stark-emblem.png",
-      "Renly Baratheon":   "assets/renly-emblem.png",
-      "Stannis Baratheon": "assets/stannis-emblem.png"
+    // Remove unneeded armies
+    d3.selectAll('.army')
+      .filter(function () {
+        return current_armies.indexOf(this.id) < 0;
+      })
+      .remove();
+  }
+
+  /****************************** Player Events *******************************/
+
+  d3.select('#play').on('click', function () {
+    if (!IS_PLAYING) {
+      IS_PLAYING = true;
+      if (current_step != LAST_STEP) do_step();
     }
+  });
+  d3.select('#pause').on('click', function () {
+    IS_PLAYING = false;
+  });
+  d3.select('#reset').on('click',function (){
+    IS_PLAYING = false;
+    current_step = 0;
+    goto_step();
+    display_instructions();
+  });
+  d3.select('#slider').on('input', function () {
+    d3.select('#slider-value').text(this.value);
+    IS_PLAYING = false;
+    current_step = this.value;
+    goto_step();
+  });
 
-    var commander = {
-      "Asha Greyjoy":      "assets/Asha-Greyjoy.png",
-      "Balon Greyjoy":     "assets/Balon-Greyjoy.png",
-      "Beric Dondarrion":  "assets/Beric-Dondarrion.png",
-      "Bran Stark":        "assets/Bran-Stark.png",
-      "Brynden Tully":     "assets/Bryden-Tully.png",
-      "Edmure Tully":      "assets/Edmure-Tully.png",
-      "Gregor Clegane":    "assets/Gregor-Clegane.png",
-      "Jaime Lannister":   "assets/Jaime-Lannister.png",
-      "Joffery Baratheon": "assets/Joffery-Baratheon.png",
-      "Loras Tyrell":      "assets/Loras-Tyrell.png",
-      "Mace Tyrell":       "assets/Mace-Tyrell.png",
-      "Mance Rayder":      "assets/Mance-Rayder.png",
-      "Ramsey Bolton":     "assets/Ramsey-Bolton.png",
-      "Renly Baratheon":   "assets/Renly-Baratheon.png",
-      "Robb Stark":        "assets/Robb-Stark.png",
-      "Roose Bolton":      "assets/Roose-Bolton.png",
-      "Stannis Baratheon": "assets/Stannis-Baratheon.png",
-      "Theon Greyjoy":     "assets/Theon-Greyjoy.png",
-      "Tyrion Lannister":  "assets/Tyrion-Lannister.png",
-      "Tywin Lannister":   "assets/Tywin-Lannister.png",
-      "Walder Frey":       "assets/Walder-Frey.png"
-    }
+  /*************************** Battle Display Setup ***************************/
 
-    d3.csv('data/battles.csv', function (err, battles) {
-      // list out all events
-      // Map appropriate data to numbers
-      var event_info = battles.map(function (b) {
+  var timeline = d3.select('#timeline')
+                  .append('svg')
+                  .attr('width', 230)
+                  .attr('height', 780);
+
+  var side = d3.select('#side').select('svg');
+
+  var affiliation_emblem_map = {
+    'Joffery Baratheon': 'assets/lannister-emblem.png',
+    'Balon Greyjoy':     'assets/greyjoy-emblem.png',
+    'Robb Stark':        'assets/stark-emblem.png',
+    'Renly Baratheon':   'assets/renly-emblem.png',
+    'Stannis Baratheon': 'assets/stannis-emblem.png'
+  }
+
+  var commander_portrait_map = {
+    'Asha Greyjoy':      'assets/Asha-Greyjoy.png',
+    'Balon Greyjoy':     'assets/Balon-Greyjoy.png',
+    'Beric Dondarrion':  'assets/Beric-Dondarrion.png',
+    'Bran Stark':        'assets/Bran-Stark.png',
+    'Brynden Tully':     'assets/Bryden-Tully.png',
+    'Edmure Tully':      'assets/Edmure-Tully.png',
+    'Gregor Clegane':    'assets/Gregor-Clegane.png',
+    'Jaime Lannister':   'assets/Jaime-Lannister.png',
+    'Joffery Baratheon': 'assets/Joffery-Baratheon.png',
+    'Loras Tyrell':      'assets/Loras-Tyrell.png',
+    'Mace Tyrell':       'assets/Mace-Tyrell.png',
+    'Mance Rayder':      'assets/Mance-Rayder.png',
+    'Ramsey Bolton':     'assets/Ramsey-Bolton.png',
+    'Renly Baratheon':   'assets/Renly-Baratheon.png',
+    'Robb Stark':        'assets/Robb-Stark.png',
+    'Roose Bolton':      'assets/Roose-Bolton.png',
+    'Stannis Baratheon': 'assets/Stannis-Baratheon.png',
+    'Theon Greyjoy':     'assets/Theon-Greyjoy.png',
+    'Tyrion Lannister':  'assets/Tyrion-Lannister.png',
+    'Tywin Lannister':   'assets/Tywin-Lannister.png',
+    'Walder Frey':       'assets/Walder-Frey.png'
+  }
+
+  // Called once battle data is ready
+  function setup_battle_display (battles) {
+    // Map data
+    var battle_map = battles.reduce(function (acc, b) {
+      if (b.battle_number) {
         b.battle_number = Number(b.battle_number);
         b.y_coord       = Number(b.y_coord);
         b.x_coord       = Number(b.x_coord);
-        b.episode       = Number(b.episode);
         b.location      = b.location.trim();
         b.time_data     = Number(b.time_data);
-        return b;
-      });
+        return acc.concat(b);
 
-      event_info.forEach(function (d) {
-        if (d.battle_number) {
-          event_id_mapper[d.battle_number] = d;
-        }
-      });
+      } else {
+        return acc;
+      }
+    }, []);
 
-      var list_yScale = d3.scale.linear()
-                          .domain([0, Object.keys(event_id_mapper).length - 1])
-                          .range([height, -8]);
+    // Add each battle to timeline
+    var timeline_yscale = d3.scale.linear()
+                        .domain([0, Object.keys(battle_map).length])
+                        .range([height, -7]);
 
-      var list_events = [];
+    timeline.selectAll('text')
+      .data(battle_map)
+      .enter()
+      .append('text')
+      .attr('x', 2)
+      .attr('y', function (d) {
+        return timeline_yscale(battle_map.length - d.battle_number);
+      })
+      .text(function (d) {
+        return d.name;
+      })
+      .style('font-size', 16)
+      .style('fill','black');
 
-      // accumulate a list of events
-      Object.keys(event_id_mapper).forEach(function (id, i) {
-          list_events.push(event_id_mapper[id]);
-      });
+    timeline.selectAll('rect')
+      .data(battle_map)
+      .enter()
+      .append('rect')
+      .attr('x', 1)
+      .attr('y', function (d) {
+        return timeline_yscale(battle_map.length - d.battle_number) - 15;
+      })
+      .attr('height', 22)
+      .attr('width', 224)
+      .attr('cursor', 'pointer')
+      .attr('stroke', 'none')
+      .attr('stroke-width', '2')
+      .attr('fill', 'transparent');
 
-      Object.keys(event_id_mapper).reverse().forEach(function (id, i) {
-        timeline.append("text")
-          .attr("x", 2)
-          .attr("y", list_yScale(i))
-          .text(event_id_mapper[id].name)
-          .style("font-size", 16)
-          .style("fill","black");
-      });
-
-      var iter = 0;
-      timeline.selectAll("rect")
-        .data(list_events)
-        .enter()
-        .append("rect")
-        .attr("x", 1)
-        .attr("y", function (d) {
-          iter++;
-          return list_yScale(list_events.length - iter) - 15;
-        })
-        .attr("height", 22)
-        .attr("width", 224)
-        .attr('cursor', 'pointer')
-        .attr("stroke", "none")
-        .attr("stroke-width", "2")
-        .attr("fill", "transparent");
-
-    // loop thorugh events to display them
-    d3.select("#timeline").selectAll("rect").on("click", function (d, i) {
-      // remove all text and replace
-      d3.select("#side").selectAll("text").remove();
-      d3.select("#side")
-        .selectAll("image")
+    // Click events for timeline
+    timeline.selectAll('rect').on('click', function (d) {
+      // Remove non-permanent elements
+      side.selectAll('text').remove();
+      side
+        .selectAll('image')
         .filter(function () {
           return !d3.select(this).classed('permanent');
         })
         .remove();
 
-      d3.select("#timeline").selectAll("rect").style("stroke", "none");
+      // Selection styles
+      timeline.selectAll('rect').style('stroke', 'none');
+      d3.select(this).style('stroke', 'gray').style('opacity', 0.7);
 
-      d3.select(this).style("stroke", "gray").style("opacity", 0.7);
-
+      // Animate map
       IS_PLAYING = false;
       current_step = d.time_data;
       d3.select('#slider-value').text(d.time_data);
@@ -872,62 +820,34 @@
       battle_highlight = d.battle_number;
       goto_step();
 
-      var defender_outcome = "";
-      if (d.attacker_outcome === "win") {
-        defender_outcome = "loss";
-      } else {
-        defender_outcome = "win";
-      }
+      var defender_outcome = d.attacker_outcome === 'win' ? 'loss' : 'win';
 
-      addText(d.name, 250,25,36);
-      addText(d.location + ", "+d.region+", " + d.year, 250,50,20);
-      addText(d.battle_type, 250, 70, 16);
-      addText("Attacker", 100, 90,20);
-      addText("Defender", 400, 90,20);
-      addText("Affiliation",250, 450, 20);
-      addText(d.attacker_king, 100, 450, 16);
-      addText(d.defender_king, 400, 450, 16);
-      addText("Commander Name",250, 500, 20);
-      addText(d.attacker_commander, 100, 500, 16);
-      addText(d.defender_commander, 400, 500, 16);
-      addText("Army Size", 250, 550, 20);
-      addText(d.attacker_size, 100, 550, 18);
-      addText(d.defender_size, 400, 550, 18);
-      addText("Outcome", 250, 600, 20);
-      addText(d.attacker_outcome, 100, 600, 50);
-      addText(defender_outcome, 400, 600, 50);
-      
+      add_text(d.name, 250, 25, 36);
+      add_text(d.location + ', ' + d.region + ', ' + d.year, 250, 50, 20);
+      add_text(d.battle_type, 250, 70, 16);
+      add_text('Attacker', 100, 90, 20);
+      add_text('Defender', 400, 90, 20);
+      add_text('Affiliation',250, 450, 20);
+      add_text(d.attacker_king, 100, 450, 16);
+      add_text(d.defender_king, 400, 450, 16);
+      add_text('Commander Name',250, 500, 20);
+      add_text(d.attacker_commander, 100, 500, 16);
+      add_text(d.defender_commander, 400, 500, 16);
+      add_text('Army Size', 250, 550, 20);
+      add_text(d.attacker_size, 100, 550, 18);
+      add_text(d.defender_size, 400, 550, 18);
+      add_text('Outcome', 250, 600, 20);
+      add_text(d.attacker_outcome, 100, 600, 50);
+      add_text(defender_outcome, 400, 600, 50);
 
-      addImage(60, 320, 75, 75, affiliation[d.attacker_king]);//attacker banner
-      addImage(360, 320, 75, 75, affiliation[d.defender_king]);//defender banner
-      addImage(0, 100, 200, 200, commander[d.main_attacker]);//attacker king
-      addImage(300, 100, 200, 200, commander[d.main_defender]);//defender king
+      add_image(60, 320, 75, 75, affiliation_emblem_map[d.attacker_king]);    //attacker banner
+      add_image(360, 320, 75, 75, affiliation_emblem_map[d.defender_king]);   //defender banner
+      add_image(0, 100, 200, 200, commander_portrait_map[d.main_attacker]);   //attacker king
+      add_image(300, 100, 200, 200, commander_portrait_map[d.main_defender]); //defender king
     });
+  }
 
-    // Before clicking on a battle the initial battle screen
-    // crossed swords
-    side.append('image')
-      .attr('xlink:href',"http://www.clker.com/cliparts/7/l/N/9/Q/C/black-crossed-swords-hi.png")
-      .attr('class', 'permanent')
-      .attr('height', 100)
-      .attr('width', 100)
-      .attr('x', 200)
-      .attr('y', 155);
-
-    // blood overlay
-    side.append('image')
-      .attr('xlink:href',"http://www.imarvintpa.com/Mapping/Overlays/Blood/Blood%20splatter%2019-sc.png")
-      .attr('class', 'permanent')
-      .attr('height', 500)
-      .attr('width', 500)
-      .attr('x', 0)
-      .attr('y', 220)
-      .attr('opacity', 0.35);
-
-    display_instructions();
-  });
-
-  function addText (text, x, y, size) {
+  function add_text (text, x, y, size) {
     side.append('text')
       .text(text)
       .attr('x', x)
@@ -937,7 +857,7 @@
       .style('fill', 'black');
   }
 
-  function addImage (x, y, height, width, url) {
+  function add_image (x, y, height, width, url) {
     side.append('image')
       .attr('xlink:href',url)
       .attr('height', height)
@@ -949,27 +869,72 @@
   d3.select('#mimno-emblem')
     .on('mouseenter', function () {
       side.append('image')
-        .attr("id", "mimno-king")
-        .attr('xlink:href',"assets/King-Mimno.png")
+        .attr('id', 'mimno-king')
+        .attr('xlink:href','assets/King-Mimno.png')
         .attr('height', 500)
         .attr('width', 500)
         .attr('x', 0)
         .attr('y', 45);
     })
     .on('mouseleave', function () {
-      d3.select("#mimno-king").remove();
+      d3.select('#mimno-king').remove();
     });
 
+  // Instructions (get displayed on reset)
   function display_instructions () {
     side.selectAll('text').remove();
     side.selectAll('image').filter(function () { return !d3.select(this).classed('permanent'); }).remove();
 
-    addText("Instructions", 250, 30, 36);
-    addText("1. Click a battle to view it's location on the map and the battle stats", 250, 55, 18);
-    addText("2. Press play or pause to view the overall progression of the war", 250, 75, 18);
-    addText("3. Select banners along the top to filter specific families", 250, 95, 18);
-    addText("4. Explore the map! Zoom in and take a look", 250, 115,18)
-    addText("5. Click reset to go back to step 1, and see these instructions again", 250, 135,18);
+    add_text('Instructions', 250, 30, 36);
+    add_text('1. Click a battle to view its location on the map and the battle stats', 250, 55, 18);
+    add_text('2. Press play or pause to view the overall progression of the war', 250, 75, 18);
+    add_text('3. Select banners along the top to filter specific families', 250, 95, 18);
+    add_text('4. Explore the map! Zoom in and take a look', 250, 115, 18)
+    add_text('5. Click reset to go back to step 1, and see these instructions again', 250, 135, 18);
+  }
+  display_instructions();
+
+  /************************* Miscellaneous Functions **************************/
+
+  /**
+   * Zoom behavior for map
+   */
+  function zoom_func () {
+    var trans = d3.event.translate,
+        scale = d3.event.scale;
+
+    // Pan limiting
+    if (trans[1] > 1) {
+      trans[1] = 0;
+    } else if (trans[1] < -height * scale + height - 1) {
+      trans[1] = -height * scale + height;
+    }
+
+    if (trans[0] > 1) {
+      trans[0] = 0;
+    } else if (trans[0] < -width * scale + width - 1) {
+      trans[0] = -width * scale + width;
+    }
+
+    zoom_behavior.translate(trans);
+    g.attr('transform', 'translate(' + trans + ')scale(' + scale + ')');
+  }
+
+  /**
+   * Removes all whitespace from the given string
+   */
+  function single_word (str) {
+    return str.replace(' ', '').trim();
+  }
+
+  /**
+   * Animates a sword between black and white
+   */
+  var sword_animation, sword_is_black = true;
+  function animate_sword (s) {
+    s.select('use').attr('xlink:href', '#swords' + (sword_is_black ? '-white' : ''));
+    sword_is_black = !sword_is_black;
+    sword_animation = setTimeout(animate_sword, 500, s);
   }
   </script>
 </body>
