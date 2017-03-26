@@ -1,8 +1,8 @@
-# cs3300-p2
+# Game of Thrones: War of the Five Kings
 
-> Project 2 for CS 3300: Game of Thrones
+> Project 2 for CS 3300
 
-Just open `index.html`.
+See the visualization [here](http://ajay-gandhi.github.io/game-of-thrones/).
 
 ## Interactions
 
@@ -11,3 +11,4 @@ Just open `index.html`.
 3. Drag the shield along the spear to view time steps.
 4. Click a battle in the center to see its statistics.
 5. Click the banners along the top to filter out specific families.
+
